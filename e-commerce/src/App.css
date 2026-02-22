@@ -1,0 +1,21 @@
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Layout under navbar */
+.main-layout {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+
+/* Main page area */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f3f4f6;
+  padding: 10px 0;
+}
