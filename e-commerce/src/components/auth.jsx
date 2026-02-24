@@ -23,6 +23,7 @@ function Auth() {
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   /* SLIDER */
   const slides = [img1, img2, img3, img4, img5];
@@ -32,7 +33,6 @@ function Auth() {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 4000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -45,6 +45,7 @@ function Auth() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     resetMessages();
+    setLoading(true);
 
     try {
       /* LOGIN */
@@ -57,8 +58,12 @@ function Auth() {
 
         const data = await res.json();
 
-        if (!res.ok) return setError(data.message);
+        if (!res.ok) {
+          setLoading(false);
+          return setError(data.message || "Login failed");
+        }
 
+        // Save auth data
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.id);
         localStorage.setItem("username", data.user.name);
@@ -66,13 +71,18 @@ function Auth() {
 
         setMessage("Login Successful ✅");
 
-        navigate("/Home");
+        // Small delay prevents race condition in production
+        setTimeout(() => {
+          navigate("/Home", { replace: true });
+        }, 150);
       }
 
       /* REGISTER */
       else if (mode === "register") {
-        if (password !== confirmPassword)
+        if (password !== confirmPassword) {
+          setLoading(false);
           return setError("Passwords do not match");
+        }
 
         const res = await fetch(`${API}/register`, {
           method: "POST",
@@ -82,7 +92,10 @@ function Auth() {
 
         const data = await res.json();
 
-        if (!res.ok) return setError(data.message);
+        if (!res.ok) {
+          setLoading(false);
+          return setError(data.message || "Registration failed");
+        }
 
         setMessage("Registration Successful ✅");
         setMode("login");
@@ -98,7 +111,10 @@ function Auth() {
 
         const data = await res.json();
 
-        if (!res.ok) return setError(data.message);
+        if (!res.ok) {
+          setLoading(false);
+          return setError(data.message || "Request failed");
+        }
 
         setMessage("Reset link sent 📩");
       }
@@ -106,6 +122,8 @@ function Auth() {
     } catch (err) {
       setError("Server error ❌");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -165,10 +183,14 @@ function Auth() {
               />
             )}
 
-            <button type="submit">
-              {mode === "login" && "Login"}
-              {mode === "register" && "Register"}
-              {mode === "forgot" && "Send Link"}
+            <button type="submit" disabled={loading}>
+              {loading
+                ? "Please wait..."
+                : mode === "login"
+                ? "Login"
+                : mode === "register"
+                ? "Register"
+                : "Send Link"}
             </button>
 
           </form>
