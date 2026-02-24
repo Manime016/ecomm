@@ -1,12 +1,15 @@
-// 🔥 LOAD ENV FIRST (ABSOLUTE TOP)
+// ================= LOAD ENV FIRST =================
 import dotenv from "dotenv";
-dotenv.config({ path: "./.env" });
+dotenv.config();
 
-// THEN other imports
+// ================= IMPORTS =================
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -18,11 +21,18 @@ import userRoutes from "./routes/userRoutes.js";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
+// ================= INIT =================
 connectDB();
-
 const app = express();
 
-/* ================= SECURITY ================= */
+// Needed for Render HTTPS proxy
+app.set("trust proxy", 1);
+
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ================= SECURITY =================
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
@@ -30,14 +40,12 @@ app.use(
   })
 );
 
-/* ================= CORS FIX (PERMANENT) ================= */
+// ================= CORS =================
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (Postman, mobile apps)
+    origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      // Allow all Vercel deployments
       if (
         origin.includes("vercel.app") ||
         origin.includes("localhost")
@@ -47,23 +55,28 @@ app.use(
 
       return callback(new Error("Not allowed by CORS"));
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
-// Handle preflight requests
 app.options("*", cors());
 
-/* ================= BODY PARSER ================= */
+// ================= BODY PARSER =================
 app.use(express.json());
 
-/* ================= LOGGER ================= */
+// ================= LOGGER =================
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-/* ================= ROUTES ================= */
+// ================= STATIC UPLOADS =================
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
+);
+
+// ================= ROUTES =================
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
@@ -71,21 +84,18 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/users", userRoutes);
 
-/* ================= STATIC FILES ================= */
-app.use("/uploads", express.static("uploads"));
-
-/* ================= HEALTH CHECK ================= */
+// ================= HEALTH CHECK =================
 app.get("/", (req, res) => {
-  res.send("API Running...");
+  res.status(200).send("API Running...");
 });
 
-/* ================= ERROR HANDLING ================= */
+// ================= ERROR HANDLER =================
 app.use(notFound);
 app.use(errorHandler);
 
-/* ================= SERVER ================= */
+// ================= SERVER START =================
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./AddProduct.css";
 
-const API = "http://localhost:5000/api/products";
+// ✅ PRODUCTION SAFE API
+const API = `${import.meta.env.VITE_API_URL}/api/products`;
 
 function AddProduct() {
   const [products, setProducts] = useState([]);
@@ -24,10 +25,10 @@ function AddProduct() {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(API);
-      console.log("Fetched products:", res.data);
       setProducts(res.data);
     } catch (err) {
       console.log("Fetch error:", err);
+      setErrorMessage("Failed to fetch products");
     }
   };
 
@@ -200,16 +201,18 @@ function AddProduct() {
       <div className="product-list">
         <h3>All Products</h3>
 
-        {products.length === 0 && (
-          <p>No products added yet.</p>
-        )}
+        {products.length === 0 && <p>No products added yet.</p>}
 
         <div className="product-grid">
           {products.map((product) => (
             <div key={product._id} className="product-card">
 
               <img
-                src={product.image ? product.image : "https://via.placeholder.com/150"}
+                src={
+                  product.image
+                    ? product.image
+                    : "https://via.placeholder.com/150"
+                }
                 alt={product.name}
               />
 
