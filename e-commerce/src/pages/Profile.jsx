@@ -1,21 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Profile.css";
 
-const ORDER_API = "http://localhost:5000/api/orders";
-const USER_API = "http://localhost:5000/api/users";
+const BASE_URL = import.meta.env.VITE_API_URL;
+const ORDER_API = `${BASE_URL}/api/orders`;
+const USER_API = `${BASE_URL}/api/users`;
 
 function Profile() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const username = localStorage.getItem("username");
-  const userEmail = localStorage.getItem("email");
-  const userPhone = localStorage.getItem("phone");
 
   const [orders, setOrders] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(null);
-
   const [showEdit, setShowEdit] = useState(false);
   const [emailChanged, setEmailChanged] = useState(false);
   const [otp, setOtp] = useState("");
@@ -23,9 +20,9 @@ function Profile() {
   const [resendCount, setResendCount] = useState(0);
 
   const [formData, setFormData] = useState({
-    name: username || "",
-    email: userEmail || "",
-    phone: userPhone || "",
+    name: localStorage.getItem("username") || "",
+    email: localStorage.getItem("email") || "",
+    phone: localStorage.getItem("phone") || "",
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -34,18 +31,12 @@ function Profile() {
     confirmPassword: "",
   });
 
-  // ✅ Proper auth axios
-  const authAxios = axios.create({
-    baseURL: "http://localhost:5000",
-  });
-
-  authAxios.interceptors.request.use((config) => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      config.headers.Authorization = `Bearer ${storedToken}`;
-    }
-    return config;
-  });
+  const authAxios = useMemo(() => {
+    return axios.create({
+      baseURL: BASE_URL,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -53,9 +44,8 @@ function Profile() {
       return;
     }
     fetchOrders();
-  }, []);
+  }, [token]);
 
-  // OTP countdown timer
   useEffect(() => {
     let interval;
     if (otpTimer > 0) {
@@ -71,7 +61,14 @@ function Profile() {
       const res = await authAxios.get("/api/orders");
       setOrders(res.data);
     } catch (err) {
-      console.error(err);
+      handleAuthError(err);
+    }
+  };
+
+  const handleAuthError = (err) => {
+    if (err.response?.status === 401) {
+      localStorage.clear();
+      navigate("/login");
     }
   };
 
@@ -94,7 +91,6 @@ function Profile() {
     0
   );
 
-  // ✅ SEND OTP (FIXED)
   const sendOtp = async () => {
     if (resendCount >= 3) {
       alert("Maximum resend attempts reached");
@@ -102,19 +98,15 @@ function Profile() {
     }
 
     try {
-      const res = await authAxios.post("/api/users/send-otp");
-
-      console.log("OTP:", res.data.otp); // testing only
-
+      await authAxios.post("/api/users/send-otp");
       setOtpTimer(60);
       setResendCount((prev) => prev + 1);
-      alert("OTP generated successfully");
+      alert("OTP sent successfully");
     } catch (err) {
       alert(err.response?.data?.message || "Unauthorized");
     }
   };
 
-  // UPDATE PROFILE
   const updateProfile = async () => {
     if (
       passwordData.newPassword &&
@@ -138,7 +130,7 @@ function Profile() {
 
       alert("Profile updated successfully");
       setShowEdit(false);
-      window.location.reload();
+      fetchOrders(); // instead of reload
     } catch (err) {
       alert(err.response?.data?.message || "Update failed");
     }
@@ -147,10 +139,9 @@ function Profile() {
   return (
     <div className="profile-container">
 
-      {/* PROFILE HEADER */}
       <div className="profile-card">
         <div>
-          <h2>{username}</h2>
+          <h2>{formData.name}</h2>
           <p>Welcome back 👋</p>
         </div>
 
@@ -164,7 +155,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* STATS */}
       <div className="profile-stats">
         <div className="stat-box">
           <h3>{orders.length}</h3>
@@ -210,32 +200,20 @@ function Profile() {
 
             {expandedOrder === order._id && (
               <div className="order-details">
-                <div className="order-items">
-                  {order.items.map((item, index) => (
-                    <div key={index} className="order-item">
-                      <img src={item.product.image} alt={item.product.name} />
-                      <div>
-                        <p>{item.product.name}</p>
-                        <p>Qty: {item.quantity}</p>
-                      </div>
+                {order.items.map((item, index) => (
+                  <div key={index} className="order-item">
+                    <img src={item.product.image} alt={item.product.name} />
+                    <div>
+                      <p>{item.product.name}</p>
+                      <p>Qty: {item.quantity}</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
 
                 <p><strong>Tracking ID:</strong> {order.trackingId}</p>
                 <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
-
-                <p>
-                  <strong>Payment Status:</strong>{" "}
-                  <span className={`payment-${order.paymentStatus?.toLowerCase()}`}>
-                    {order.paymentStatus || "Pending"}
-                  </span>
-                </p>
-
-                {order.paymentId && (
-                  <p><strong>Payment ID:</strong> {order.paymentId}</p>
-                )}
-
+                <p><strong>Payment Status:</strong> {order.paymentStatus || "Pending"}</p>
+                {order.paymentId && <p><strong>Payment ID:</strong> {order.paymentId}</p>}
                 <p><strong>Address:</strong> {order.address}</p>
 
                 {order.orderStatus === "Processing" && (
@@ -252,7 +230,6 @@ function Profile() {
         ))
       )}
 
-      {/* EDIT PROFILE MODAL */}
       {showEdit && (
         <div className="modal-overlay">
           <div className="modal">
@@ -335,7 +312,6 @@ function Profile() {
               <button onClick={updateProfile}>Save</button>
               <button onClick={() => setShowEdit(false)}>Cancel</button>
             </div>
-
           </div>
         </div>
       )}

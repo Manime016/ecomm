@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/Cart.css";
 
-const CART_API = "http://localhost:5000/api/cart";
-const COUPON_API = "http://localhost:5000/api/coupons";
-const ORDER_API = "http://localhost:5000/api/orders";
+const BASE_URL = import.meta.env.VITE_API_URL;
+const CART_API = `${BASE_URL}/api/cart`;
+const COUPON_API = `${BASE_URL}/api/coupons`;
+const ORDER_API = `${BASE_URL}/api/orders`;
 
 function Cart() {
   const navigate = useNavigate();
@@ -31,11 +32,13 @@ function Cart() {
 
   const token = localStorage.getItem("token");
 
-  const authAxios = axios.create({
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const authAxios = useMemo(() => {
+    return axios.create({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -43,7 +46,7 @@ function Cart() {
       return;
     }
     initializeCart();
-  }, []);
+  }, [token]);
 
   const initializeCart = async () => {
     await fetchCart();
@@ -82,23 +85,30 @@ function Cart() {
 
   const updateQuantity = async (productId, qty) => {
     if (qty < 1) return;
-    await authAxios.put(`${CART_API}/update`, {
-      productId,
-      quantity: qty,
-    });
-    fetchCart();
+    try {
+      await authAxios.put(`${CART_API}/update`, {
+        productId,
+        quantity: qty,
+      });
+      fetchCart();
+    } catch (err) {
+      handleAuthError(err);
+    }
   };
 
   const removeItem = async (productId) => {
-    await authAxios.delete(`${CART_API}/remove`, {
-      data: { productId },
-    });
-    fetchCart();
+    try {
+      await authAxios.delete(`${CART_API}/remove`, {
+        data: { productId },
+      });
+      fetchCart();
+    } catch (err) {
+      handleAuthError(err);
+    }
   };
 
   const subtotal = cart.reduce(
-    (total, item) =>
-      total + item.product.price * item.quantity,
+    (total, item) => total + item.product.price * item.quantity,
     0
   );
 
@@ -107,10 +117,7 @@ function Cart() {
 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
-    setAddress((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setAddress((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCheckout = async () => {
@@ -133,7 +140,7 @@ function Cart() {
     try {
       setLoading(true);
 
-      /* ================= COD FLOW ================= */
+      /* ================= COD ================= */
       if (paymentMethod === "COD") {
         await authAxios.post(ORDER_API, {
           items: cart,
@@ -151,16 +158,15 @@ function Cart() {
         return;
       }
 
-      /* ================= RAZORPAY FLOW ================= */
+      /* ================= RAZORPAY ================= */
 
-      // 1️⃣ Create Razorpay Order
       const { data } = await authAxios.post(
-        "http://localhost:5000/api/orders/razorpay",
+        `${ORDER_API}/razorpay`,
         { amount: total }
       );
 
       const options = {
-       key: "rzp_test_SJIccaYuzkmSVb", // 🔥 Replace with your Razorpay Key ID
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: data.amount,
         currency: data.currency,
         order_id: data.id,
@@ -168,13 +174,10 @@ function Cart() {
         description: "Order Payment",
         handler: async function (response) {
 
-          // 2️⃣ Verify payment
-          await authAxios.post(
-            "http://localhost:5000/api/orders/verify",
-            response
-          );
+          await authAxios.post(`${ORDER_API}/verify`, {
+            ...response,
+          });
 
-          // 3️⃣ Create actual order in DB
           await authAxios.post(ORDER_API, {
             items: cart,
             subtotal,
@@ -189,9 +192,7 @@ function Cart() {
           alert("Payment Successful!");
           navigate("/profile");
         },
-        theme: {
-          color: "#3399cc",
-        },
+        theme: { color: "#3399cc" },
       };
 
       const rzp = new window.Razorpay(options);
@@ -215,23 +216,19 @@ function Cart() {
         </div>
       ) : (
         <div className="cart-layout">
-
           <div className="cart-items">
             {cart.map((item) => (
               <div className="cart-item" key={item.product._id}>
                 <img src={item.product.image} alt="" />
-
                 <div className="item-info">
                   <h4>{item.product.name}</h4>
                   <p>₹{item.product.price}</p>
-
                   <div className="qty-control">
                     <button onClick={() => updateQuantity(item.product._id, item.quantity - 1)}>-</button>
                     <span>{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.product._id, item.quantity + 1)}>+</button>
                   </div>
                 </div>
-
                 <div className="item-total">
                   ₹{item.product.price * item.quantity}
                   <button onClick={() => removeItem(item.product._id)}>Remove</button>
@@ -254,41 +251,6 @@ function Cart() {
             >
               Proceed to Checkout
             </button>
-          </div>
-
-        </div>
-      )}
-
-      {showCheckoutModal && (
-        <div className="checkout-overlay">
-          <div className="checkout-modal">
-            <h2>Checkout</h2>
-
-            <div className="address-grid">
-              <input name="houseNumber" placeholder="House No *" onChange={handleAddressChange} />
-              <input name="locality" placeholder="Locality *" onChange={handleAddressChange} />
-              <input name="landmark" placeholder="Landmark" onChange={handleAddressChange} />
-              <input name="district" placeholder="District *" onChange={handleAddressChange} />
-              <input name="state" placeholder="State *" onChange={handleAddressChange} />
-              <input name="pincode" placeholder="Pincode *" onChange={handleAddressChange} />
-            </div>
-
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            >
-              <option value="COD">Cash on Delivery</option>
-              <option value="UPI">UPI</option>
-              <option value="CARD">Credit/Debit Card</option>
-            </select>
-
-            <div className="modal-buttons">
-              <button onClick={handleCheckout} disabled={loading}>
-                {loading ? "Processing..." : "Place Order"}
-              </button>
-              <button onClick={() => setShowCheckoutModal(false)}>Cancel</button>
-            </div>
-
           </div>
         </div>
       )}

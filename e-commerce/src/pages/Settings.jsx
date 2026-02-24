@@ -1,17 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/Settings.css";
 
 function Settings() {
   const [showChat, setShowChat] = useState(false);
 
-  const changeTheme = (theme) => {
-    document.body.className = theme;
+  // Apply saved theme on load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    applyTheme(savedTheme);
+  }, []);
+
+  const applyTheme = (theme) => {
+    document.body.classList.remove("light", "dark", "teal");
+    document.body.classList.add(theme);
     localStorage.setItem("theme", theme);
   };
 
   return (
     <div className="settings-container">
-
       <h2>Settings</h2>
 
       {/* ABOUT SECTION */}
@@ -39,15 +45,15 @@ function Settings() {
         <h3>Theme</h3>
 
         <div className="theme-options">
-          <button onClick={() => changeTheme("light")}>
+          <button onClick={() => applyTheme("light")}>
             Light
           </button>
 
-          <button onClick={() => changeTheme("dark")}>
+          <button onClick={() => applyTheme("dark")}>
             Dark
           </button>
 
-          <button onClick={() => changeTheme("teal")}>
+          <button onClick={() => applyTheme("teal")}>
             Teal
           </button>
         </div>
@@ -76,7 +82,6 @@ function Settings() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 // Images
@@ -8,9 +9,11 @@ import img3 from "../assets/ads/img3.jpg";
 import img4 from "../assets/ads/img4.jpg";
 import img5 from "../assets/ads/img5.jpg";
 
-const API = "http://localhost:5000/api/auth";
+const API = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 function Auth() {
+  const navigate = useNavigate();
+
   const [mode, setMode] = useState("login");
 
   const [name, setName] = useState("");
@@ -44,29 +47,27 @@ function Auth() {
     resetMessages();
 
     try {
-if (mode === "login") {
-  const res = await fetch("http://localhost:5000/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+      /* LOGIN */
+      if (mode === "login") {
+        const res = await fetch(`${API}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-  const data = await res.json();
+        const data = await res.json();
 
-  if (!res.ok) return setError(data.message);
+        if (!res.ok) return setError(data.message);
 
-  localStorage.setItem("token", data.token);
-  localStorage.setItem("userId", data.user.id);
-  localStorage.setItem("username", data.user.name);
-  localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("username", data.user.name);
+        localStorage.setItem("isLoggedIn", "true");
 
-  setMessage("Login Successful ✅");
+        setMessage("Login Successful ✅");
 
-  window.location.href = "/dashboard";
-}
-
-
-
+        navigate("/dashboard");
+      }
 
       /* REGISTER */
       else if (mode === "register") {
@@ -102,14 +103,13 @@ if (mode === "login") {
         setMessage("Reset link sent 📩");
       }
 
-    } catch {
+    } catch (err) {
       setError("Server error ❌");
     }
   };
 
   return (
     <div className="auth-container">
-
       <div className="auth-main-box">
 
         {/* LEFT SIDE */}
@@ -140,6 +140,7 @@ if (mode === "login") {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
             {mode !== "forgot" && (
@@ -148,6 +149,7 @@ if (mode === "login") {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             )}
 
@@ -159,6 +161,7 @@ if (mode === "login") {
                 onChange={(e) =>
                   setConfirmPassword(e.target.value)
                 }
+                required
               />
             )}
 
@@ -170,7 +173,6 @@ if (mode === "login") {
 
           </form>
 
-          {/* LINKS */}
           <div className="auth-links">
 
             {mode === "login" && (
@@ -194,37 +196,29 @@ if (mode === "login") {
 
         </div>
 
-
-        {/* RIGHT SIDE (IMAGE SLIDER) */}
+        {/* RIGHT SIDE */}
         <div
           className="auth-right slider"
           style={{
             backgroundImage: `url(${slides[currentSlide]})`,
           }}
         >
-
           <div className="slider-overlay">
-
-            <h1>Shoppp 111 </h1>
-
+            <h1>Shoppp 111</h1>
             <p>
               Everything in hand<br />
               ONE PLACE FOR ALL
             </p>
-
             <div className="ad-box">
               <p>BUY NOW</p>
               <p>✔ Easy</p>
               <p>✔ Simple</p>
-              <p>✔ fast</p>
+              <p>✔ Fast</p>
             </div>
-
           </div>
-
         </div>
 
       </div>
-
     </div>
   );
 }

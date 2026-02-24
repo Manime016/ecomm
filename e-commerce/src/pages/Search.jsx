@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../styles/Search.css";
 
-const PRODUCT_API = "http://localhost:5000/api/products";
-const CART_API = "http://localhost:5000/api/cart";
+const BASE_URL = import.meta.env.VITE_API_URL;
+const PRODUCT_API = `${BASE_URL}/api/products`;
+const CART_API = `${BASE_URL}/api/cart`;
 
 function Search() {
+  const navigate = useNavigate();
+
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [query, setQuery] = useState("");
@@ -14,16 +18,23 @@ function Search() {
 
   const token = localStorage.getItem("token");
 
-  const authHeader = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  const authAxios = useMemo(() => {
+    return axios.create({
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }, [token]);
 
   useEffect(() => {
     fetchProducts();
-    fetchCart();
-  }, []);
+    if (token) fetchCart();
+  }, [token]);
+
+  const handleAuthError = (err) => {
+    if (err.response?.status === 401) {
+      localStorage.clear();
+      navigate("/login");
+    }
+  };
 
   // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
@@ -32,17 +43,17 @@ function Search() {
       setProducts(res.data);
       setFiltered(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Product fetch error:", err);
     }
   };
 
   // ================= FETCH CART =================
   const fetchCart = async () => {
     try {
-      const res = await axios.get(CART_API, authHeader);
+      const res = await authAxios.get(CART_API);
       setCartItems(res.data.items || []);
     } catch (err) {
-      console.error(err);
+      handleAuthError(err);
     }
   };
 
@@ -58,54 +69,45 @@ function Search() {
 
     setFiltered(result);
 
-    // Save search to DB if user typed something
-    if (value.trim().length > 1) {
+    if (value.trim().length > 1 && token) {
       try {
-        await axios.post(
-          `${PRODUCT_API}/recent-search`,
-          { query: value },
-          authHeader
-        );
+        await authAxios.post(`${PRODUCT_API}/recent-search`, {
+          query: value,
+        });
       } catch (err) {
-        console.error(err);
+        console.error("Recent search error:", err);
       }
     }
   };
 
-  // ================= CHECK IF IN CART =================
   const isInCart = (productId) => {
     return cartItems.some(
       (item) => item.product._id === productId
     );
   };
 
-  // ================= ADD TO CART =================
   const addToCart = async (productId) => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     try {
-      await axios.post(
-        `${CART_API}/add`,
-        { productId },
-        authHeader
-      );
+      await authAxios.post(`${CART_API}/add`, { productId });
       fetchCart();
     } catch (err) {
-      console.error(err);
+      handleAuthError(err);
     }
   };
 
-  // ================= REMOVE FROM CART =================
   const removeFromCart = async (productId) => {
     try {
-      await axios.delete(
-        `${CART_API}/remove`,
-        {
-          data: { productId },
-          ...authHeader
-        }
-      );
+      await authAxios.delete(`${CART_API}/remove`, {
+        data: { productId },
+      });
       fetchCart();
     } catch (err) {
-      console.error(err);
+      handleAuthError(err);
     }
   };
 

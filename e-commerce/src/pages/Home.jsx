@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 
-const PRODUCT_API = "http://localhost:5000/api/products";
-const CART_API = "http://localhost:5000/api/cart";
+const BASE_URL = import.meta.env.VITE_API_URL;
+const PRODUCT_API = `${BASE_URL}/api/products`;
+const CART_API = `${BASE_URL}/api/cart`;
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -14,21 +15,23 @@ function Dashboard() {
   const [expanded, setExpanded] = useState({});
   const [cartItems, setCartItems] = useState([]);
 
-  const authAxios = axios.create({
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const authAxios = useMemo(() => {
+    return axios.create({
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }, [token]);
 
   useEffect(() => {
     fetchProducts();
     if (token) fetchCart();
-  }, []);
+  }, [token]);
 
   const fetchProducts = async () => {
     try {
       const res = await axios.get(PRODUCT_API);
       setProducts(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Product fetch error:", err);
     }
   };
 
@@ -37,14 +40,15 @@ function Dashboard() {
       const res = await authAxios.get(CART_API);
       setCartItems(res.data.items || []);
     } catch (err) {
-      console.error(err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      }
     }
   };
 
   const getQuantity = (id) => {
-    const item = cartItems.find(
-      (i) => i.product._id === id
-    );
+    const item = cartItems.find((i) => i.product._id === id);
     return item ? item.quantity : 0;
   };
 
@@ -55,12 +59,10 @@ function Dashboard() {
     }
 
     try {
-      await authAxios.post(`${CART_API}/add`, {
-        productId,
-      });
+      await authAxios.post(`${CART_API}/add`, { productId });
       fetchCart();
     } catch (err) {
-      console.error(err);
+      console.error("Add to cart error:", err);
     }
   };
 
@@ -74,11 +76,10 @@ function Dashboard() {
       });
       fetchCart();
     } catch (err) {
-      console.error(err);
+      console.error("Update quantity error:", err);
     }
   };
 
-  // 🔥 BUY NOW LOGIC (Auto Checkout Trigger)
   const handleBuyNow = async (productId) => {
     if (!token) {
       navigate("/login");
@@ -86,18 +87,14 @@ function Dashboard() {
     }
 
     try {
-      await authAxios.post(`${CART_API}/add`, {
-        productId,
-      });
-
+      await authAxios.post(`${CART_API}/add`, { productId });
       navigate("/cart?checkout=true");
-
     } catch (err) {
-      console.error(err);
+      console.error("Buy now error:", err);
     }
   };
 
-  const categories = [...new Set(products.map(p => p.category))];
+  const categories = [...new Set(products.map((p) => p.category))];
 
   const ProductCard = ({ item }) => {
     const quantity = getQuantity(item._id);
@@ -107,16 +104,14 @@ function Dashboard() {
       <div
         className={`product-card ${isExpanded ? "expanded" : ""}`}
         onClick={() =>
-          setExpanded(prev => ({
+          setExpanded((prev) => ({
             ...prev,
-            [item._id]: !prev[item._id]
+            [item._id]: !prev[item._id],
           }))
         }
       >
         {item.stock === 0 && (
-          <div className="out-of-stock-overlay">
-            Out of Stock
-          </div>
+          <div className="out-of-stock-overlay">Out of Stock</div>
         )}
 
         <img src={item.image} alt={item.name} />
@@ -131,8 +126,8 @@ function Dashboard() {
           </div>
         )}
 
-        {item.stock > 0 && (
-          quantity === 0 ? (
+        {item.stock > 0 &&
+          (quantity === 0 ? (
             <button
               className="cart-btn"
               onClick={(e) => {
@@ -148,25 +143,19 @@ function Dashboard() {
               onClick={(e) => e.stopPropagation()}
             >
               <button
-                onClick={() =>
-                  updateQty(item._id, quantity - 1)
-                }
+                onClick={() => updateQty(item._id, quantity - 1)}
               >
                 -
               </button>
               <span>{quantity}</span>
               <button
-                onClick={() =>
-                  updateQty(item._id, quantity + 1)
-                }
+                onClick={() => updateQty(item._id, quantity + 1)}
               >
                 +
               </button>
             </div>
-          )
-        )}
+          ))}
 
-        {/* BUY NOW BUTTON */}
         <button
           className="buy-now-btn"
           onClick={(e) => {
@@ -182,19 +171,17 @@ function Dashboard() {
 
   return (
     <>
-      {/* HERO SLIDER */}
       <div className="hero-banner">
         <div className="hero-slides">
-          {[1,2,3,4,5,1,2,3,4,5].map((n, i) => (
-            <div key={i} className={`hero-slide slide${n}`}></div>
+          {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((n, i) => (
+            <div key={i} className={`hero-slide slide${n}`} />
           ))}
         </div>
         <div className="hero-text">SHOPP111</div>
       </div>
 
-      {/* CATEGORY SECTIONS */}
       {categories.map((cat) => {
-        const filtered = products.filter(p => p.category === cat);
+        const filtered = products.filter((p) => p.category === cat);
         const isExpandedCat = expanded[cat];
 
         return (
@@ -202,7 +189,10 @@ function Dashboard() {
             <h2>{cat}</h2>
 
             <div className="product-grid">
-              {(isExpandedCat ? filtered : filtered.slice(0, 4)).map(item => (
+              {(isExpandedCat
+                ? filtered
+                : filtered.slice(0, 4)
+              ).map((item) => (
                 <ProductCard key={item._id} item={item} />
               ))}
             </div>
@@ -212,9 +202,9 @@ function Dashboard() {
                 <button
                   className="show-more-btn"
                   onClick={() =>
-                    setExpanded(prev => ({
+                    setExpanded((prev) => ({
                       ...prev,
-                      [cat]: !prev[cat]
+                      [cat]: !prev[cat],
                     }))
                   }
                 >

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
@@ -6,7 +6,7 @@ import Dashboard from "./pages/Home";
 import Search from "./pages/Search";
 import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
+import Settings from "../pages/Settings";
 
 // Auth
 import Auth from "./components/auth";
@@ -18,19 +18,34 @@ import Sidebar from "./components/sidebar";
 // Styles
 import "./App.css";
 
-function App() {
-  const isLoggedIn = !!localStorage.getItem("isLoggedIn");
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/" replace />;
+};
 
-  // Apply saved theme on load
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("token")
+  );
+
+  // Watch login state changes
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "light";
-    document.body.className = savedTheme;
+    const handleStorageChange = () => {
+      setIsLoggedIn(!!localStorage.getItem("token"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () =>
+      window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Protected Route Wrapper
-  const ProtectedRoute = ({ children }) => {
-    return isLoggedIn ? children : <Navigate to="/" replace />;
-  };
+  // Apply saved theme safely
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.body.classList.remove("light", "dark", "teal");
+    document.body.classList.add(savedTheme);
+  }, []);
 
   return (
     <div className="app-container">
@@ -49,7 +64,11 @@ function App() {
             <Route
               path="/"
               element={
-                isLoggedIn ? <Navigate to="/dashboard" replace /> : <Auth />
+                isLoggedIn ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Auth />
+                )
               }
             />
 
@@ -99,7 +118,7 @@ function App() {
               }
             />
 
-            {/* Fallback Route */}
+            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
 
           </Routes>
