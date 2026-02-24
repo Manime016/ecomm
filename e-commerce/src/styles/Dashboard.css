@@ -102,14 +102,23 @@ body.dark .logout-btn:hover {
   background-position: center;
 }
 
+/* Adaptive watermark */
+
 .hero-text {
   position: absolute;
   bottom: 20px;
   left: 30px;
   font-size: 38px;
   font-weight: bold;
-  color: var(--text);
-  opacity: 0.08;
+  pointer-events: none;
+}
+
+body:not(.dark) .hero-text {
+  color: rgba(0, 0, 0, 0.07);
+}
+
+body.dark .hero-text {
+  color: rgba(255, 255, 255, 0.08);
 }
 
 /* ========================================= */
@@ -155,6 +164,10 @@ body.dark .logout-btn:hover {
   transform: translateY(-6px);
 }
 
+.product-card.expanded {
+  transform: scale(1.02);
+}
+
 .product-card img {
   width: 100%;
   height: 180px;
@@ -187,23 +200,30 @@ body.dark .logout-btn:hover {
   border: none;
   cursor: pointer;
   font-size: 14px;
+  transition: 0.2s ease;
 }
 
-.cart-btn {
-  background: var(--primary);
-  color: white;
-}
-
+.cart-btn,
 .buy-now-btn {
   background: var(--primary);
   color: white;
-  margin-top: 8px;
+}
+
+.cart-btn:hover,
+.buy-now-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .show-more-btn {
   background: var(--card-bg);
   color: var(--text);
   border: 1px solid var(--border);
+}
+
+.show-more-btn:hover {
+  background: var(--primary);
+  color: white;
 }
 
 /* ========================================= */
@@ -223,6 +243,13 @@ body.dark .logout-btn:hover {
   border: 1px solid var(--border);
   background: var(--card-bg);
   color: var(--text);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.qty-controls button:hover {
+  background: var(--primary);
+  color: white;
 }
 
 /* ========================================= */
