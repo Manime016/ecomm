@@ -1,223 +1,10 @@
-/* ===== HERO SECTION ===== */
-
-.hero-banner {
-  position: relative;
-  overflow: hidden;
-  height: 300px;
-}
-
-.hero-slides {
-  display: flex;
-  width: 200%;
-  height: 100%;
-  animation: slideHero 20s linear infinite;
-}
-
-.hero-slide {
-  flex: 1 0 20%;
-  background-size: cover;
-  background-position: center;
-}
-
-.hero-text {
-  position: absolute;
-  bottom: 20px;
-  left: 30px;
-  font-size: 40px;
-  font-weight: bold;
-  color: white;
-}
-
-/* ===== SECTION ===== */
-
-.section {
-  padding: 40px 60px;
-}
-
-.section h2 {
-  margin-bottom: 20px;
-  font-size: 26px;
-}
-
-/* ===== PRODUCT GRID ===== */
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 25px;
-}
-
-/* ===== PRODUCT CARD ===== */
-
-.product-card {
-  background: var(--card-bg, #fff);
-  border-radius: 12px;
-  padding: 15px;
-  text-align: center;
-  position: relative;
-  transition: 0.3s ease;
-  cursor: pointer;
-}
-
-.product-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: contain;
-}
-
-.product-card h4 {
-  font-size: 16px;
-  margin: 10px 0 5px;
-}
-
-.price {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.extra-info {
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-/* ===== BUTTONS ===== */
-
-.cart-btn,
-.buy-now-btn,
-.show-more-btn {
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.qty-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.qty-controls button {
-  padding: 5px 10px;
-}
-
-/* ===== OUT OF STOCK ===== */
-
-.out-of-stock-overlay {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: red;
-  color: white;
-  padding: 5px 10px;
-  font-size: 12px;
-  border-radius: 6px;
-}
-
-/* ===================================================== */
-/* ================= MOBILE RESPONSIVE ================= */
-/* ===================================================== */
-
-/* Tablets */
-@media (max-width: 1024px) {
-  .product-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .section {
-    padding: 30px 40px;
-  }
-}
-
-/* Large Mobile */
-@media (max-width: 768px) {
-  .hero-banner {
-    height: 220px;
-  }
-
-  .hero-text {
-    font-size: 28px;
-    left: 20px;
-  }
-
-  .section {
-    padding: 25px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-  }
-
-  .product-card img {
-    height: 150px;
-  }
-}
-
-/* Small Mobile */
-@media (max-width: 480px) {
-  .hero-banner {
-    height: 180px;
-  }
-
-  .hero-text {
-    font-size: 22px;
-    left: 15px;
-  }
-
-  .section {
-    padding: 20px 15px;
-  }
-
-  .section h2 {
-    font-size: 20px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .product-card {
-    padding: 10px;
-  }
-
-  .product-card img {
-    height: 130px;
-  }
-
-  .product-card h4 {
-    font-size: 14px;
-  }
-
-  .price {
-    font-size: 14px;
-  }
-
-  .cart-btn,
-  .buy-now-btn {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
-
-  .qty-controls span {
-    font-size: 14px;
-  }
-}
-/* ================================= */
-/* ========== SIDEBAR DESKTOP ====== */
-/* ================================= */
+/* ========================================= */
+/* SIDEBAR STYLING (NO POSITIONING HERE) */
+/* ========================================= */
 
 .sidebar {
-  width: 240px;
-  height: 100vh;
   background: #111;
   color: white;
-  position: fixed;
-  left: 0;
-  top: 0;
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
@@ -232,7 +19,7 @@
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
 }
 
 .sidebar-link,
@@ -264,37 +51,193 @@
   text-align: left;
 }
 
-/* ================================= */
-/* ===== CONTENT SHIFT FOR DESKTOP = */
-/* ================================= */
+/* ========================================= */
+/* NAVBAR STYLING */
+/* ========================================= */
 
-/* Make sure main content doesn't go under sidebar */
-body {
-  margin-left: 240px;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
+.navbar h3 {
+  font-size: 18px;
+}
 
-/* ================================= */
-/* ========= MOBILE VERSION ======== */
-/* ================================= */
+.user {
+  font-weight: 500;
+}
+
+/* ========================================= */
+/* HERO SECTION */
+/* ========================================= */
+
+.hero-banner {
+  position: relative;
+  height: 300px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.hero-slides {
+  display: flex;
+  width: 200%;
+  height: 100%;
+}
+
+.hero-slide {
+  flex: 1 0 20%;
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-text {
+  position: absolute;
+  bottom: 20px;
+  left: 30px;
+  font-size: 38px;
+  font-weight: bold;
+  color: white;
+}
+
+/* ========================================= */
+/* SECTION */
+/* ========================================= */
+
+.section {
+  margin-bottom: 50px;
+}
+
+.section h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+/* ========================================= */
+/* PRODUCT GRID */
+/* ========================================= */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+/* ========================================= */
+/* PRODUCT CARD */
+/* ========================================= */
+
+.product-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+  transition: 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+}
+
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+}
+
+.product-card h4 {
+  margin: 12px 0 6px;
+}
+
+.price {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.extra-info {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.cart-btn,
+.buy-now-btn,
+.show-more-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cart-btn {
+  background: #4e73df;
+  color: white;
+}
+
+.buy-now-btn {
+  background: #111;
+  color: white;
+  margin-top: 8px;
+}
+
+.qty-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.qty-controls button {
+  padding: 5px 10px;
+}
+
+/* ========================================= */
+/* OUT OF STOCK */
+/* ========================================= */
+
+.out-of-stock-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: red;
+  color: white;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+/* ========================================= */
+/* RESPONSIVE */
+/* ========================================= */
+
+@media (max-width: 992px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 
 @media (max-width: 768px) {
 
-  body {
-    margin-left: 0;
+  .hero-banner {
+    height: 220px;
+  }
+
+  .hero-text {
+    font-size: 26px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .sidebar {
-    width: 100%;
-    height: 65px;
     flex-direction: row;
-    align-items: center;
     justify-content: space-around;
-    padding: 0;
-    bottom: 0;
-    top: auto;
-    position: fixed;
-    z-index: 1000;
+    padding: 10px;
   }
 
   .sidebar-logo {
@@ -303,40 +246,24 @@ body {
 
   .sidebar-menu {
     flex-direction: row;
-    justify-content: space-around;
     width: 100%;
-    gap: 0;
+    justify-content: space-around;
   }
 
   .sidebar-link span,
   .logout-btn span {
-    display: none; /* Hide text on mobile */
-  }
-
-  .sidebar-link,
-  .logout-btn {
-    justify-content: center;
-    padding: 8px;
-    font-size: 20px;
-  }
-
-  .icon {
-    font-size: 22px;
+    display: none;
   }
 }
 
-
-/* ================================= */
-/* ===== SMALL MOBILE TWEAK ======== */
-/* ================================= */
-
 @media (max-width: 480px) {
 
-  .sidebar {
-    height: 60px;
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
   }
 
-  .icon {
-    font-size: 20px;
+  .product-card img {
+    height: 140px;
   }
 }

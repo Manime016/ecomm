@@ -18,7 +18,7 @@ import Sidebar from "./components/sidebar";
 // Styles
 import "./App.css";
 
-// Protected Route Component
+// Protected Route
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/" replace />;
@@ -55,10 +55,8 @@ function App() {
         {isLoggedIn && <Sidebar />}
 
         <div className="content">
-
           <Routes>
 
-            {/* Login */}
             <Route
               path="/"
               element={
@@ -70,7 +68,6 @@ function App() {
               }
             />
 
-            {/* Protected Routes */}
             <Route
               path="/dashboard"
               element={
@@ -116,11 +113,9 @@ function App() {
               }
             />
 
-            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
 
           </Routes>
-
         </div>
       </div>
     </div>

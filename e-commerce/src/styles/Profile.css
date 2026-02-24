@@ -1,32 +1,28 @@
-/* =========================================================
-   PROFILE PAGE
-========================================================= */
+/* ============================= */
+/* PROFILE CONTAINER */
+/* ============================= */
 
 .profile-container {
-  padding: 40px;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f4f6fb, #ffffff);
-  font-family: "Segoe UI", sans-serif;
+  width: 100%;
 }
 
-
-/* =========================================================
-   PROFILE CARD
-========================================================= */
+/* ============================= */
+/* PROFILE HEADER CARD */
+/* ============================= */
 
 .profile-card {
   background: #ffffff;
   padding: 25px;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .profile-card h2 {
-  margin: 0;
+  margin-bottom: 5px;
 }
 
 .profile-actions {
@@ -34,29 +30,22 @@
   gap: 12px;
 }
 
-.profile-actions button,
-.logout-btn {
-  padding: 10px 16px;
+.profile-actions button {
+  padding: 8px 14px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  font-weight: 500;
-}
-
-.profile-actions button {
   background: #4e73df;
   color: white;
 }
 
-.logout-btn {
+.profile-actions .logout-btn {
   background: #e74a3b;
-  color: white;
 }
 
-
-/* =========================================================
-   STATS
-========================================================= */
+/* ============================= */
+/* STATS SECTION */
+/* ============================= */
 
 .profile-stats {
   display: flex;
@@ -74,14 +63,12 @@
 }
 
 .stat-box h3 {
-  margin: 0;
-  font-size: 22px;
+  margin-bottom: 6px;
 }
 
-
-/* =========================================================
-   ORDERS
-========================================================= */
+/* ============================= */
+/* ORDERS */
+/* ============================= */
 
 .section-title {
   margin-bottom: 15px;
@@ -103,61 +90,61 @@
 }
 
 .status {
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
   background: #eee;
+}
+
+/* Example status colors */
+.status.processing {
+  background: #fff3cd;
 }
 
 .status.delivered {
   background: #d4edda;
-  color: #155724;
-}
-
-.status.processing {
-  background: #fff3cd;
-  color: #856404;
 }
 
 .status.cancelled {
   background: #f8d7da;
-  color: #721c24;
 }
 
 .order-details {
   margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
 }
 
 .order-item {
   display: flex;
-  gap: 12px;
+  gap: 15px;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .order-item img {
   width: 60px;
   height: 60px;
   object-fit: contain;
-  border-radius: 8px;
   background: #f8f9fc;
+  border-radius: 8px;
 }
 
 .cancel-btn {
   margin-top: 10px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
+  padding: 6px 12px;
   background: #e74a3b;
+  border: none;
+  border-radius: 8px;
   color: white;
   cursor: pointer;
 }
 
-
-/* =========================================================
-   EDIT PROFILE MODAL
-========================================================= */
+/* ============================= */
+/* MODAL */
+/* ============================= */
 
 .modal-overlay {
   position: fixed;
@@ -166,61 +153,67 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .modal {
-  width: 500px;
+  width: 450px;
   max-width: 95%;
-  background: #ffffff;
+  background: white;
   padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
   max-height: 90vh;
   overflow-y: auto;
 }
 
+.modal h2 {
+  margin-bottom: 15px;
+}
+
 .modal input {
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   margin-bottom: 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
 }
 
-.modal button {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
+.modal hr {
+  margin: 15px 0;
 }
 
 .modal-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.modal-actions button:first-child {
+.modal-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
   background: #4e73df;
   color: white;
 }
 
 .modal-actions button:last-child {
-  background: #eeeeee;
+  background: #ccc;
+  color: #333;
 }
 
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-/* Tablet */
 @media (max-width: 992px) {
-
-  .profile-container {
-    padding: 30px 20px 90px;
+  .profile-stats {
+    flex-direction: column;
   }
+}
+
+@media (max-width: 768px) {
 
   .profile-card {
     flex-direction: column;
@@ -228,17 +221,13 @@
     gap: 15px;
   }
 
-  .profile-stats {
+  .profile-actions {
+    width: 100%;
     flex-direction: column;
   }
 
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-
-  .profile-container {
-    padding: 20px 15px 90px;
+  .profile-actions button {
+    width: 100%;
   }
 
   .order-header {
@@ -247,32 +236,16 @@
     gap: 8px;
   }
 
-  .profile-actions {
+  .order-item {
     flex-direction: column;
-    width: 100%;
+    align-items: flex-start;
   }
-
-  .profile-actions button {
-    width: 100%;
-  }
-
 }
 
-/* Small Phones */
 @media (max-width: 480px) {
 
-  .stat-box h3 {
-    font-size: 18px;
-  }
-
-  .order-item img {
-    width: 50px;
-    height: 50px;
-  }
-
   .modal {
-    padding: 20px;
-    border-radius: 14px;
+    padding: 18px;
   }
 
   .modal-actions {
@@ -282,5 +255,4 @@
   .modal-actions button {
     width: 100%;
   }
-
 }
