@@ -3,6 +3,7 @@ import multer from "multer";
 import {
   createProduct,
   getAllProducts,
+  getProductById,
   updateProduct,
   deleteProduct,
   saveRecentSearch
@@ -25,29 +26,28 @@ const upload = multer({ storage });
 // Get all products
 router.get("/", getAllProducts);
 
-// Create product (UNPROTECTED)
+// Get product by ID  ← THIS FIXES YOUR ERROR
+router.get("/:id", getProductById);
+
+// Create product
 router.post(
   "/",
   upload.single("image"),
   createProduct
 );
 
-// Update product (UNPROTECTED)
+// Update product
 router.put(
   "/:id",
   upload.single("image"),
   updateProduct
 );
 
-// Delete product (UNPROTECTED)
-router.delete(
-  "/:id",
-  deleteProduct
-);
+// Delete product
+router.delete("/:id", deleteProduct);
 
 /* ================= USER ================= */
 
-// Save recent search (still protected if you want — remove if needed)
 router.post("/recent-search", saveRecentSearch);
 
 export default router;

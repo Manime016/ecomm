@@ -26,6 +26,18 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+/* ================= GET BY ID ================= */
+export const getProductById = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  res.json(product);
+});
+
 /* ================= UPDATE ================= */
 export const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
@@ -37,7 +49,6 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
   if (req.file) {
     if (product.image) {
-      // Extract only the relative path after host
       const imagePath = product.image.split("/uploads/")[1];
       if (imagePath) {
         fs.unlink(`uploads/${imagePath}`, () => {});
@@ -54,7 +65,6 @@ export const updateProduct = asyncHandler(async (req, res) => {
   product.stock = req.body.stock ?? product.stock;
 
   const updatedProduct = await product.save();
-
   res.json(updatedProduct);
 });
 
@@ -75,14 +85,12 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   }
 
   await product.deleteOne();
-
   res.json({ message: "Product deleted successfully" });
 });
 
 /* ================= SAVE RECENT SEARCH ================= */
 export const saveRecentSearch = asyncHandler(async (req, res) => {
   const { query } = req.body;
-
   const user = req.user;
 
   user.recentSearches = user.recentSearches.filter(
@@ -93,6 +101,5 @@ export const saveRecentSearch = asyncHandler(async (req, res) => {
   user.recentSearches = user.recentSearches.slice(0, 5);
 
   await user.save();
-
   res.json(user.recentSearches);
 });

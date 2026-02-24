@@ -40,27 +40,27 @@ app.use(
   })
 );
 
-// ================= CORS =================
+// ================= CORS (SMART DEV SETUP) =================
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      if (
-        origin.includes("vercel.app") ||
-        origin.includes("localhost")
-      ) {
+      // Allow localhost
+      if (origin.includes("localhost")) {
+        return callback(null, true);
+      }
+
+      // Allow ALL vercel preview & production domains
+      if (origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
 
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
-
-app.options("*", cors());
 
 // ================= BODY PARSER =================
 app.use(express.json());
