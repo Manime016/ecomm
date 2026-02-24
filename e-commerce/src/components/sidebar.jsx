@@ -18,7 +18,7 @@ function Sidebar() {
 
       <nav className="sidebar-menu">
 
-        <NavLink to="/dashboard" className="sidebar-link">
+        <NavLink to="/Home" className="sidebar-link">
           <FiHome className="icon" />
           <span>Home</span>
         </NavLink>

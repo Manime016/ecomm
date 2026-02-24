@@ -10,7 +10,7 @@ function Navbar() {
   const getPageTitle = () => {
     const path = location.pathname;
 
-    if (path === "/dashboard") return "Home";
+    if (path === "/Home") return "Home";
     if (path === "/search") return "Search";
     if (path === "/cart") return "Cart";
     if (path === "/Profile") return "Profile";

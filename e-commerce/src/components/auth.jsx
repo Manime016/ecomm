@@ -66,7 +66,7 @@ function Auth() {
 
         setMessage("Login Successful ✅");
 
-        navigate("/dashboard");
+        navigate("/Home");
       }
 
       /* REGISTER */

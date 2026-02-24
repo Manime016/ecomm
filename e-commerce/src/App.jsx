@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
-import Dashboard from "./pages/Home";
+import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
-import Settings from "../pages/Settings";
+import Settings from "./pages/Settings";
 
 // Auth
 import Auth from "./components/auth";
@@ -29,7 +29,6 @@ function App() {
     !!localStorage.getItem("token")
   );
 
-  // Watch login state changes
   useEffect(() => {
     const handleStorageChange = () => {
       setIsLoggedIn(!!localStorage.getItem("token"));
@@ -40,7 +39,6 @@ function App() {
       window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Apply saved theme safely
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     document.body.classList.remove("light", "dark", "teal");
@@ -77,7 +75,7 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Home />
                 </ProtectedRoute>
               }
             />
