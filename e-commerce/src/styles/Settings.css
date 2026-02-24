@@ -29,7 +29,7 @@
 }
 
 /* ============================= */
-/* BUTTONS */
+/* BUTTON */
 /* ============================= */
 
 .settings-btn {
@@ -39,6 +39,7 @@
   background: var(--primary);
   color: white;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .settings-btn:hover {
@@ -46,26 +47,54 @@
 }
 
 /* ============================= */
-/* THEME BUTTONS */
+/* THEME CIRCLES */
 /* ============================= */
 
 .theme-options {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-.theme-options button {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
-  background: var(--primary);
-  color: white;
+.theme-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   cursor: pointer;
+  border: 2px solid var(--border);
+  transition: 0.2s ease;
 }
 
-.theme-options button:hover {
-  opacity: 0.9;
+/* Individual theme preview colors */
+
+.theme-circle.light {
+  background: #ffffff;
+}
+
+.theme-circle.dark {
+  background: #111111;
+}
+
+.theme-circle.teal {
+  background: #009688;
+}
+
+.theme-circle.purple {
+  background: #7c3aed;
+}
+
+.theme-circle.orange {
+  background: #ea580c;
+}
+
+.theme-circle.gold {
+  background: linear-gradient(135deg, #111 50%, #facc15 50%);
+}
+
+/* Active theme ring */
+.active-theme-circle {
+  border: 3px solid var(--primary);
+  transform: scale(1.1);
 }
 
 /* ============================= */
@@ -96,6 +125,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid var(--border);
 }
 
 /* ============================= */
@@ -116,7 +146,6 @@
   border: none;
   color: white;
   cursor: pointer;
-  font-size: 16px;
 }
 
 /* ============================= */
@@ -186,22 +215,13 @@
   cursor: pointer;
 }
 
-.chat-input button:hover {
-  opacity: 0.9;
-}
-
 /* ============================= */
 /* RESPONSIVE */
 /* ============================= */
 
 @media (max-width: 768px) {
-
   .theme-options {
-    flex-direction: column;
-  }
-
-  .theme-options button {
-    width: 100%;
+    flex-direction: row;
   }
 
   .chat-box {
@@ -210,15 +230,10 @@
 }
 
 @media (max-width: 480px) {
-
   .chat-box {
     width: 100%;
     height: 100vh;
     border-radius: 0;
-  }
-
-  .chat-header {
-    padding: 12px;
   }
 
   .chat-input {

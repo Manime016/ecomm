@@ -8,22 +8,46 @@ function Settings() {
     { sender: "admin", text: "Hello! How can I help you?" }
   ]);
 
+  const [activeTheme, setActiveTheme] = useState("light");
+
   const chatEndRef = useRef(null);
 
-  // Apply saved theme
+  /* ============================= */
+  /* THEMES LIST */
+  /* ============================= */
+
+  const themes = [
+    "light",
+    "dark",
+    "teal",
+    "purple",
+    "orange",
+    "gold"
+  ];
+
+  /* ============================= */
+  /* APPLY SAVED THEME ON LOAD */
+  /* ============================= */
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     applyTheme(savedTheme);
   }, []);
 
-  // Auto scroll chat
+  /* ============================= */
+  /* AUTO SCROLL CHAT */
+  /* ============================= */
+
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  // Close on ESC
+  /* ============================= */
+  /* ESC TO CLOSE CHAT */
+  /* ============================= */
+
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") {
@@ -34,28 +58,38 @@ function Settings() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
+  /* ============================= */
+  /* APPLY THEME */
+  /* ============================= */
+
   const applyTheme = (theme) => {
-    document.body.classList.remove("light", "dark", "teal");
+    themes.forEach((t) => document.body.classList.remove(t));
     document.body.classList.add(theme);
     localStorage.setItem("theme", theme);
+    setActiveTheme(theme);
   };
+
+  /* ============================= */
+  /* CHAT SEND */
+  /* ============================= */
 
   const sendMessage = () => {
     if (!message.trim()) return;
 
-    const newMessages = [
-      ...messages,
+    setMessages((prev) => [
+      ...prev,
       { sender: "user", text: message }
-    ];
+    ]);
 
-    setMessages(newMessages);
     setMessage("");
 
-    // Simulated admin reply
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { sender: "admin", text: "Thanks! Our team will get back to you." }
+        {
+          sender: "admin",
+          text: "Thanks! Our team will get back to you."
+        }
       ]);
     }, 1000);
   };
@@ -64,6 +98,7 @@ function Settings() {
     <div className="settings-container">
       <h2>Settings</h2>
 
+      {/* ABOUT */}
       <div className="settings-card">
         <h3>About</h3>
         <p>
@@ -72,6 +107,7 @@ function Settings() {
         </p>
       </div>
 
+      {/* CHAT SUPPORT */}
       <div className="settings-card">
         <h3>Chat Support</h3>
         <button
@@ -82,16 +118,25 @@ function Settings() {
         </button>
       </div>
 
+      {/* THEME SECTION */}
       <div className="settings-card">
         <h3>Theme</h3>
 
         <div className="theme-options">
-          <button onClick={() => applyTheme("light")}>Light</button>
-          <button onClick={() => applyTheme("dark")}>Dark</button>
-          <button onClick={() => applyTheme("teal")}>Teal</button>
+          {themes.map((theme) => (
+            <div
+              key={theme}
+              className={`theme-circle ${theme} ${
+                activeTheme === theme ? "active-theme-circle" : ""
+              }`}
+              onClick={() => applyTheme(theme)}
+              title={theme}
+            />
+          ))}
         </div>
       </div>
 
+      {/* CHAT MODAL */}
       {showChat && (
         <div
           className="chat-overlay"

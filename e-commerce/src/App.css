@@ -42,6 +42,41 @@ body.teal {
   --border: #d6ece9;
 }
 
+/* PURPLE */
+body.purple {
+  --bg: #f4f0ff;
+  --card-bg: #ffffff;
+  --text: #2e1065;
+  --primary: #7c3aed;
+  --danger: #dc2626;
+  --border: #e5e7eb;
+}
+
+/* ORANGE */
+body.orange {
+  --bg: #fff7ed;
+  --card-bg: #ffffff;
+  --text: #7c2d12;
+  --primary: #ea580c;
+  --danger: #dc2626;
+  --border: #fde3cf;
+}
+
+/* GOLD (Premium Dark) */
+body.gold {
+  --bg: #0f0f0f;
+  --card-bg: #1a1a1a;
+  --text: #facc15;
+  --primary: #facc15;
+  --danger: #ef4444;
+  --border: #2a2a2a;
+}
+
+/* Smooth theme transition */
+body {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
 /* ============================= */
 /* MAIN STRUCTURE */
 /* ============================= */
@@ -56,9 +91,7 @@ body.teal {
   display: flex;
 }
 
-/* ============================= */
 /* SIDEBAR POSITION */
-/* ============================= */
 
 .sidebar {
   width: 240px;
@@ -68,9 +101,7 @@ body.teal {
   top: 0;
 }
 
-/* ============================= */
 /* NAVBAR */
-/* ============================= */
 
 .navbar {
   margin-left: 240px;
@@ -80,9 +111,7 @@ body.teal {
   color: var(--text);
 }
 
-/* ============================= */
 /* CONTENT */
-/* ============================= */
 
 .content {
   flex: 1;
@@ -119,6 +148,6 @@ body.teal {
   .content {
     margin-left: 0;
     padding: 20px 15px;
-    padding-bottom: 85px; /* space for bottom sidebar */
+    padding-bottom: 85px;
   }
 }

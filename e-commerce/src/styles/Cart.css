@@ -24,7 +24,6 @@
 }
 
 .empty-cart h3 {
-  color: var(--text);
   opacity: 0.7;
 }
 
@@ -78,7 +77,6 @@
 }
 
 .item-info p {
-  color: var(--text);
   opacity: 0.7;
   font-size: 14px;
 }
@@ -153,7 +151,6 @@
 
 .cart-summary p {
   margin: 6px 0;
-  color: var(--text);
   opacity: 0.75;
 }
 
@@ -190,6 +187,85 @@
 }
 
 /* ============================= */
+/* CHECKOUT MODAL */
+/* ============================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.modal {
+  width: 450px;
+  max-width: 95%;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  margin-bottom: 15px;
+}
+
+.modal h3 {
+  margin: 15px 0 10px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.modal label {
+  display: block;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-actions button:first-child {
+  background: var(--primary);
+  color: white;
+}
+
+.modal-actions button:last-child {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* ============================= */
 /* RESPONSIVE */
 /* ============================= */
 
@@ -205,7 +281,6 @@
 }
 
 @media (max-width: 768px) {
-
   .cart-item {
     flex-direction: column;
     align-items: flex-start;
@@ -223,7 +298,6 @@
 }
 
 @media (max-width: 480px) {
-
   .cart-item img {
     width: 85px;
     height: 85px;
@@ -240,5 +314,17 @@
   .checkout-btn {
     padding: 12px;
     font-size: 15px;
+  }
+
+  .modal {
+    padding: 18px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
   }
 }

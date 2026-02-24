@@ -13,7 +13,6 @@ function Cart() {
   const location = useLocation();
 
   const [cart, setCart] = useState([]);
-  const [availableCoupons, setAvailableCoupons] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -45,41 +44,18 @@ function Cart() {
       navigate("/");
       return;
     }
-    initializeCart();
+    fetchCart();
   }, [token]);
-
-  const initializeCart = async () => {
-    await fetchCart();
-    await fetchCoupons();
-
-    const params = new URLSearchParams(location.search);
-    if (params.get("checkout") === "true") {
-      setShowCheckoutModal(true);
-    }
-  };
 
   const fetchCart = async () => {
     try {
       const res = await authAxios.get(CART_API);
       setCart(res.data.items || []);
     } catch (err) {
-      handleAuthError(err);
-    }
-  };
-
-  const fetchCoupons = async () => {
-    try {
-      const res = await authAxios.get(COUPON_API);
-      setAvailableCoupons(res.data || []);
-    } catch (err) {
-      handleAuthError(err);
-    }
-  };
-
-  const handleAuthError = (err) => {
-    if (err.response?.status === 401) {
-      localStorage.clear();
-      navigate("/");
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/");
+      }
     }
   };
 
@@ -92,7 +68,7 @@ function Cart() {
       });
       fetchCart();
     } catch (err) {
-      handleAuthError(err);
+      console.error(err);
     }
   };
 
@@ -103,7 +79,7 @@ function Cart() {
       });
       fetchCart();
     } catch (err) {
-      handleAuthError(err);
+      console.error(err);
     }
   };
 
@@ -153,7 +129,6 @@ function Cart() {
           address,
         });
 
-        // Clear Cart After Order
         await authAxios.delete(`${CART_API}/clear`);
 
         alert("Order Placed Successfully!");
@@ -168,17 +143,20 @@ function Cart() {
         { amount: total }
       );
 
+      if (!window.Razorpay) {
+        alert("Payment SDK not loaded. Please refresh.");
+        return;
+      }
+
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: data.amount,
         currency: data.currency,
         order_id: data.id,
-        name: "Your Store",
+        name: "SHOPP111",
         description: "Order Payment",
         handler: async function (response) {
-          await authAxios.post(`${ORDER_API}/verify`, {
-            ...response,
-          });
+          await authAxios.post(`${ORDER_API}/verify`, response);
 
           await authAxios.post(ORDER_API, {
             items: cart,
@@ -191,20 +169,13 @@ function Cart() {
             address,
           });
 
-          // Clear Cart After Order
           await authAxios.delete(`${CART_API}/clear`);
 
           alert("Payment Successful!");
           navigate("/profile");
         },
-        theme: { color: "#3399cc" },
+        theme: { color: "#4e73df" },
       };
-
-      // Razorpay Safety Check
-      if (!window.Razorpay) {
-        alert("Payment SDK not loaded. Please refresh.");
-        return;
-      }
 
       const rzp = new window.Razorpay(options);
       rzp.open();
@@ -263,6 +234,61 @@ function Cart() {
             >
               {loading ? "Processing..." : "Proceed to Checkout"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= CHECKOUT MODAL ================= */}
+
+      {showCheckoutModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+
+            <h2>Checkout</h2>
+
+            <h3>Delivery Address</h3>
+
+            <input name="houseNumber" placeholder="House / Flat No" value={address.houseNumber} onChange={handleAddressChange} />
+            <input name="locality" placeholder="Locality" value={address.locality} onChange={handleAddressChange} />
+            <input name="landmark" placeholder="Landmark" value={address.landmark} onChange={handleAddressChange} />
+            <input name="district" placeholder="District" value={address.district} onChange={handleAddressChange} />
+            <input name="state" placeholder="State" value={address.state} onChange={handleAddressChange} />
+            <input name="pincode" placeholder="Pincode" value={address.pincode} onChange={handleAddressChange} />
+
+            <h3>Payment Method</h3>
+
+            <label>
+              <input
+                type="radio"
+                value="COD"
+                checked={paymentMethod === "COD"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              Cash on Delivery
+            </label>
+
+            <br />
+
+            <label>
+              <input
+                type="radio"
+                value="RAZORPAY"
+                checked={paymentMethod === "RAZORPAY"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              Razorpay
+            </label>
+
+            <div className="modal-actions">
+              <button onClick={handleCheckout} disabled={loading}>
+                {loading ? "Processing..." : "Place Order"}
+              </button>
+
+              <button onClick={() => setShowCheckoutModal(false)}>
+                Cancel
+              </button>
+            </div>
+
           </div>
         </div>
       )}
