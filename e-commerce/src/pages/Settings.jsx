@@ -1,13 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../styles/Settings.css";
 
 function Settings() {
   const [showChat, setShowChat] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([
+    { sender: "admin", text: "Hello! How can I help you?" }
+  ]);
 
-  // Apply saved theme on load
+  const chatEndRef = useRef(null);
+
+  // Apply saved theme
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     applyTheme(savedTheme);
+  }, []);
+
+  // Auto scroll chat
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  // Close on ESC
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setShowChat(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
   const applyTheme = (theme) => {
@@ -16,11 +40,30 @@ function Settings() {
     localStorage.setItem("theme", theme);
   };
 
+  const sendMessage = () => {
+    if (!message.trim()) return;
+
+    const newMessages = [
+      ...messages,
+      { sender: "user", text: message }
+    ];
+
+    setMessages(newMessages);
+    setMessage("");
+
+    // Simulated admin reply
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "admin", text: "Thanks! Our team will get back to you." }
+      ]);
+    }, 1000);
+  };
+
   return (
     <div className="settings-container">
       <h2>Settings</h2>
 
-      {/* ABOUT SECTION */}
       <div className="settings-card">
         <h3>About</h3>
         <p>
@@ -29,7 +72,6 @@ function Settings() {
         </p>
       </div>
 
-      {/* CHAT SUPPORT */}
       <div className="settings-card">
         <h3>Chat Support</h3>
         <button
@@ -40,44 +82,53 @@ function Settings() {
         </button>
       </div>
 
-      {/* THEME OPTIONS */}
       <div className="settings-card">
         <h3>Theme</h3>
 
         <div className="theme-options">
-          <button onClick={() => applyTheme("light")}>
-            Light
-          </button>
-
-          <button onClick={() => applyTheme("dark")}>
-            Dark
-          </button>
-
-          <button onClick={() => applyTheme("teal")}>
-            Teal
-          </button>
+          <button onClick={() => applyTheme("light")}>Light</button>
+          <button onClick={() => applyTheme("dark")}>Dark</button>
+          <button onClick={() => applyTheme("teal")}>Teal</button>
         </div>
       </div>
 
-      {/* CHAT MODAL */}
       {showChat && (
-        <div className="chat-overlay">
-          <div className="chat-box">
+        <div
+          className="chat-overlay"
+          onClick={() => setShowChat(false)}
+        >
+          <div
+            className="chat-box"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="chat-header">
               <h4>Live Support</h4>
               <button onClick={() => setShowChat(false)}>X</button>
             </div>
 
             <div className="chat-messages">
-              <p><strong>Admin:</strong> Hello! How can I help you?</p>
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`chat-message ${msg.sender}`}
+                >
+                  {msg.text}
+                </div>
+              ))}
+              <div ref={chatEndRef} />
             </div>
 
             <div className="chat-input">
               <input
                 type="text"
                 placeholder="Type your message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && sendMessage()
+                }
               />
-              <button>Send</button>
+              <button onClick={sendMessage}>Send</button>
             </div>
           </div>
         </div>

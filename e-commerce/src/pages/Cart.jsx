@@ -153,6 +153,9 @@ function Cart() {
           address,
         });
 
+        // Clear Cart After Order
+        await authAxios.delete(`${CART_API}/clear`);
+
         alert("Order Placed Successfully!");
         navigate("/profile");
         return;
@@ -173,7 +176,6 @@ function Cart() {
         name: "Your Store",
         description: "Order Payment",
         handler: async function (response) {
-
           await authAxios.post(`${ORDER_API}/verify`, {
             ...response,
           });
@@ -189,11 +191,20 @@ function Cart() {
             address,
           });
 
+          // Clear Cart After Order
+          await authAxios.delete(`${CART_API}/clear`);
+
           alert("Payment Successful!");
           navigate("/profile");
         },
         theme: { color: "#3399cc" },
       };
+
+      // Razorpay Safety Check
+      if (!window.Razorpay) {
+        alert("Payment SDK not loaded. Please refresh.");
+        return;
+      }
 
       const rzp = new window.Razorpay(options);
       rzp.open();
@@ -247,9 +258,10 @@ function Cart() {
 
             <button
               className="checkout-btn"
+              disabled={loading}
               onClick={() => setShowCheckoutModal(true)}
             >
-              Proceed to Checkout
+              {loading ? "Processing..." : "Proceed to Checkout"}
             </button>
           </div>
         </div>

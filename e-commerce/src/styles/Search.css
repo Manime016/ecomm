@@ -1,173 +1,141 @@
-/* ================= PAGE ================= */
+/* =========================================================
+   SEARCH PAGE
+========================================================= */
 
 .search-page {
   padding: 40px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa, #e9eef6);
+  background: linear-gradient(135deg, #f4f6fb, #ffffff);
   font-family: "Segoe UI", sans-serif;
 }
 
-/* ================= SEARCH INPUT ================= */
+.search-page h2 {
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
 
 .search-input {
   width: 100%;
-  padding: 14px 18px;
-  margin-bottom: 30px;
-  font-size: 16px;
-  border-radius: 30px;
+  max-width: 500px;
+  padding: 12px 16px;
+  border-radius: 10px;
   border: 1px solid #ddd;
-  outline: none;
-  transition: 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  font-size: 15px;
+  margin-bottom: 30px;
+  transition: 0.2s ease;
 }
 
 .search-input:focus {
+  outline: none;
   border-color: #4e73df;
-  box-shadow: 0 4px 20px rgba(78,115,223,0.2);
+  box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.15);
 }
 
-/* ================= PRODUCT GRID ================= */
+
+/* =========================================================
+   PRODUCT GRID
+========================================================= */
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 25px;
 }
 
-/* ================= PRODUCT CARD ================= */
+
+/* =========================================================
+   PRODUCT CARD
+========================================================= */
 
 .product-card {
-  background: white;
+  background: #ffffff;
   padding: 18px;
-  border-radius: 18px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   text-align: center;
-  transition: all 0.3s ease;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  transition: 0.3s ease;
 }
 
 .product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+  transform: translateY(-5px);
 }
 
-/* EXPANDED STATE */
-.product-card.expanded {
-  transform: scale(1.05);
-  z-index: 5;
-}
-
-/* PRODUCT IMAGE */
 .product-card img {
   width: 100%;
-  height: 190px;
-  object-fit: cover;
-  border-radius: 14px;
-  transition: 0.3s ease;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 12px;
 }
 
-.product-card:hover img {
-  transform: scale(1.05);
-}
-
-/* PRODUCT TITLE */
 .product-card h3 {
-  margin: 14px 0 6px;
-  font-size: 17px;
-  color: #333;
-}
-
-/* CATEGORY / SMALL TEXT */
-.product-card span {
-  font-size: 13px;
-  color: #888;
-}
-
-/* PRICE */
-.price {
-  margin-top: 8px;
-  font-weight: 600;
+  margin: 10px 0 5px 0;
   font-size: 16px;
-  color: #4e73df;
 }
 
-/* EXTRA INFO */
+.price {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
 .extra-info {
-  margin-top: 12px;
   font-size: 14px;
-  color: #666;
-  line-height: 1.4;
+  margin-bottom: 12px;
+  text-align: left;
 }
 
-/* ================= BUTTONS ================= */
 
-.add-btn {
-  margin-top: 12px;
-  padding: 9px 16px;
-  background: linear-gradient(45deg, #4e73df, #224abe);
-  color: white;
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.add-btn,
+.remove-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 25px;
   cursor: pointer;
   font-size: 14px;
-  transition: 0.3s ease;
+  transition: 0.2s ease;
 }
 
-.add-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(78,115,223,0.4);
+.add-btn {
+  background: #4e73df;
+  color: white;
 }
 
 .remove-btn {
-  margin-top: 12px;
-  padding: 9px 16px;
-  background: #ff4d4f;
+  background: #e74a3b;
   color: white;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.3s ease;
 }
 
-.remove-btn:hover {
-  background: #d9363e;
-  transform: scale(1.05);
-}
+
 /* =========================================================
-   RESPONSIVE IMPROVEMENTS (DO NOT REMOVE EXISTING)
+   RESPONSIVE
 ========================================================= */
 
 /* Tablet */
 @media (max-width: 992px) {
 
   .search-page {
-    padding: 30px 20px;
+    padding: 30px 20px 90px;
   }
 
   .product-grid {
-    gap: 20px;
-  }
-
-  .product-card img {
-    height: 170px;
+    grid-template-columns: repeat(3, 1fr);
   }
 
 }
 
-
-/* Large Mobile */
+/* Mobile */
 @media (max-width: 768px) {
 
   .search-page {
-    padding: 20px 15px;
-  }
-
-  .search-input {
-    font-size: 15px;
-    padding: 12px 16px;
+    padding: 20px 15px 90px;
   }
 
   .product-grid {
@@ -175,36 +143,18 @@
     gap: 18px;
   }
 
-  .product-card {
-    padding: 14px;
-  }
-
   .product-card img {
     height: 150px;
   }
 
-  .product-card h3 {
-    font-size: 15px;
-  }
-
-  .price {
-    font-size: 15px;
-  }
-
 }
-
 
 /* Small Phones */
 @media (max-width: 480px) {
 
   .product-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .search-input {
-    font-size: 14px;
-    padding: 10px 14px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 
   .product-card {
@@ -212,23 +162,21 @@
   }
 
   .product-card img {
-    height: 180px;
+    height: 130px;
+  }
+
+  .product-card h3 {
+    font-size: 14px;
+  }
+
+  .price {
+    font-size: 14px;
   }
 
   .add-btn,
   .remove-btn {
-    width: 100%;
-    font-size: 14px;
-  }
-
-}
-
-
-/* Extra Small Devices */
-@media (max-width: 360px) {
-
-  .product-card img {
-    height: 160px;
+    font-size: 13px;
+    padding: 6px 10px;
   }
 
 }

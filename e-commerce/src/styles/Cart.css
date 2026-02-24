@@ -1,5 +1,5 @@
 /* =========================================================
-   ROOT VARIABLES (Safe fallback if not defined globally)
+   ROOT VARIABLES
 ========================================================= */
 
 :root {
@@ -67,11 +67,9 @@
 .cart-item {
   display: flex;
   gap: 20px;
-
   background: var(--card-bg);
   padding: 20px;
   border-radius: 16px;
-
   box-shadow: var(--shadow-sm);
   margin-bottom: 20px;
   transition: 0.3s ease;
@@ -124,10 +122,8 @@
 .qty-control button {
   width: 32px;
   height: 32px;
-
   border-radius: 50%;
   border: none;
-
   background: var(--primary);
   color: white;
   font-weight: bold;
@@ -161,11 +157,9 @@
 .item-total button {
   margin-top: 12px;
   padding: 6px 12px;
-
   background: var(--danger);
   border: none;
   border-radius: 10px;
-
   color: white;
   font-size: 13px;
   cursor: pointer;
@@ -183,11 +177,9 @@
 
 .cart-summary {
   flex: 1;
-
   background: var(--card-bg);
   padding: 25px;
   border-radius: 16px;
-
   box-shadow: var(--shadow-md);
   position: sticky;
   top: 100px;
@@ -220,15 +212,12 @@
 .checkout-btn {
   width: 100%;
   padding: 14px;
-
   border-radius: 12px;
   border: none;
-
   background: var(--primary);
   color: white;
   font-size: 16px;
   font-weight: 600;
-
   margin-top: 20px;
   cursor: pointer;
   transition: 0.25s ease;
@@ -240,48 +229,29 @@
 
 
 /* =========================================================
-   CHECKOUT MODAL OVERLAY
+   CHECKOUT MODAL
 ========================================================= */
 
 .checkout-overlay {
   position: fixed;
   inset: 0;
-
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(2px);
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   z-index: 1000;
 }
-
-
-/* =========================================================
-   CHECKOUT MODAL
-========================================================= */
 
 .checkout-modal {
   width: 520px;
   max-width: 95%;
-
   background: var(--card-bg);
   padding: 30px;
   border-radius: 20px;
-
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease;
 }
-
-.checkout-modal h2 {
-  margin-bottom: 20px;
-}
-
-
-/* =========================================================
-   ADDRESS GRID
-========================================================= */
 
 .address-grid {
   display: grid;
@@ -290,65 +260,26 @@
   margin-bottom: 20px;
 }
 
-.address-grid input {
-  padding: 12px 14px;
-
-  border-radius: 10px;
-  border: 1px solid #ddd;
-
-  font-size: 14px;
-  transition: 0.2s ease;
-}
-
-.address-grid input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.15);
-}
-
-
-/* =========================================================
-   PAYMENT SELECT
-========================================================= */
-
+.address-grid input,
 .checkout-modal select {
-  width: 100%;
-  padding: 12px;
-
+  padding: 12px 14px;
   border-radius: 10px;
   border: 1px solid #ddd;
-
   font-size: 14px;
-  margin-bottom: 20px;
-  cursor: pointer;
 }
-
-.checkout-modal select:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-
-
-/* =========================================================
-   MODAL BUTTONS
-========================================================= */
 
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
   gap: 12px;
 }
 
 .modal-buttons button {
   flex: 1;
   padding: 12px;
-
   border-radius: 10px;
   border: none;
-
   font-weight: 600;
   cursor: pointer;
-  transition: 0.25s ease;
 }
 
 .modal-buttons button:first-child {
@@ -356,16 +287,8 @@
   color: white;
 }
 
-.modal-buttons button:first-child:hover {
-  background: var(--primary-dark);
-}
-
 .modal-buttons button:last-child {
   background: #eeeeee;
-}
-
-.modal-buttons button:last-child:hover {
-  background: #dddddd;
 }
 
 
@@ -389,47 +312,36 @@
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 900px) {
+/* Tablet & Below */
+@media (max-width: 992px) {
+
+  .cart-container {
+    padding: 30px 20px 90px;
+  }
+
   .cart-layout {
     flex-direction: column;
   }
 
   .cart-summary {
     position: static;
-    margin-top: 20px;
+    margin-top: 25px;
   }
+
 }
 
-@media (max-width: 600px) {
-  .address-grid {
-    grid-template-columns: 1fr;
+/* Mobile */
+@media (max-width: 768px) {
+
+  .cart-container {
+    padding: 20px 15px 90px;
   }
 
   .cart-item {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .item-total {
-    width: 100%;
-    text-align: left;
-    margin-top: 10px;
-  }
-}
-/* =========================================================
-   RESPONSIVE IMPROVEMENTS (DO NOT REMOVE EXISTING)
-========================================================= */
-
-/* Tablet Improvements */
-@media (max-width: 992px) {
-
-  .cart-container {
-    padding: 30px 20px;
-  }
-
-  .cart-item {
-    gap: 15px;
-    padding: 18px;
+    gap: 14px;
+    padding: 16px;
   }
 
   .cart-item img {
@@ -437,51 +349,22 @@
     height: 90px;
   }
 
-  .cart-summary {
-    padding: 20px;
-  }
-
-}
-
-
-/* Large Mobile */
-@media (max-width: 768px) {
-
-  .cart-container {
-    padding: 20px 15px;
-  }
-
-  .cart-layout {
-    flex-direction: column;
-  }
-
-  .cart-summary {
-    position: static;
-    margin-top: 20px;
-  }
-
-  .cart-item {
-    flex-direction: column;
-    align-items: flex-start;
+  .item-info {
+    width: 100%;
   }
 
   .item-total {
     width: 100%;
     text-align: left;
-    margin-top: 12px;
-  }
-
-  .qty-control {
-    gap: 10px;
+    margin-top: 10px;
   }
 
   .qty-control button {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
   }
 
 }
-
 
 /* Small Phones */
 @media (max-width: 480px) {
@@ -508,28 +391,17 @@
     font-size: 15px;
   }
 
-  .checkout-modal {
-    padding: 20px;
-    border-radius: 14px;
-  }
-
   .address-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
   }
 
   .modal-buttons {
     flex-direction: column;
   }
 
-  .modal-buttons button {
-    width: 100%;
-  }
-
 }
 
-
-/* Very Small Devices (Short Height Fix) */
+/* Short Height Devices */
 @media (max-height: 600px) {
 
   .checkout-modal {

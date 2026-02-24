@@ -206,3 +206,137 @@
     font-size: 14px;
   }
 }
+/* ================================= */
+/* ========== SIDEBAR DESKTOP ====== */
+/* ================================= */
+
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: #111;
+  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  font-size: 22px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-link,
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  transition: 0.2s ease;
+  font-size: 15px;
+}
+
+.sidebar-link:hover,
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-link.active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* ================================= */
+/* ===== CONTENT SHIFT FOR DESKTOP = */
+/* ================================= */
+
+/* Make sure main content doesn't go under sidebar */
+body {
+  margin-left: 240px;
+}
+
+
+/* ================================= */
+/* ========= MOBILE VERSION ======== */
+/* ================================= */
+
+@media (max-width: 768px) {
+
+  body {
+    margin-left: 0;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 65px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0;
+    bottom: 0;
+    top: auto;
+    position: fixed;
+    z-index: 1000;
+  }
+
+  .sidebar-logo {
+    display: none;
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    gap: 0;
+  }
+
+  .sidebar-link span,
+  .logout-btn span {
+    display: none; /* Hide text on mobile */
+  }
+
+  .sidebar-link,
+  .logout-btn {
+    justify-content: center;
+    padding: 8px;
+    font-size: 20px;
+  }
+
+  .icon {
+    font-size: 22px;
+  }
+}
+
+
+/* ================================= */
+/* ===== SMALL MOBILE TWEAK ======== */
+/* ================================= */
+
+@media (max-width: 480px) {
+
+  .sidebar {
+    height: 60px;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+}

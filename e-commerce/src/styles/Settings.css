@@ -1,185 +1,204 @@
+/* =========================================================
+   SETTINGS PAGE
+========================================================= */
+
 .settings-container {
   padding: 40px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f4f6fb, #ffffff);
+  font-family: "Segoe UI", sans-serif;
 }
+
+.settings-container h2 {
+  margin-bottom: 25px;
+}
+
+
+/* =========================================================
+   SETTINGS CARD
+========================================================= */
 
 .settings-card {
-  background: var(--card-bg);
-  padding: 20px;
-  border-radius: 10px;
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 16px;
   margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.settings-btn {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  background: var(--primary);
-  color: white;
-  cursor: pointer;
+.settings-card h3 {
+  margin-bottom: 10px;
 }
 
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.settings-btn,
 .theme-options button {
-  margin-right: 10px;
-  padding: 8px 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  background: #4e73df;
+  color: white;
+  transition: 0.2s ease;
 }
 
-/* CHAT */
+.settings-btn:hover,
+.theme-options button:hover {
+  background: #3b5edc;
+}
+
+.theme-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   CHAT MODAL
+========================================================= */
+
 .chat-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .chat-box {
-  background: white;
-  width: 400px;
-  height: 500px;
+  width: 420px;
+  max-width: 95%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  max-height: 85vh;
 }
 
 .chat-header {
-  padding: 15px;
-  background: var(--primary);
-  color: white;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.chat-header button {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .chat-messages {
   flex: 1;
-  padding: 15px;
   overflow-y: auto;
+  font-size: 14px;
+  margin-bottom: 15px;
 }
 
 .chat-input {
   display: flex;
-  padding: 10px;
+  gap: 10px;
 }
 
 .chat-input input {
   flex: 1;
-  padding: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
 .chat-input button {
-  padding: 8px 14px;
-  margin-left: 5px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #4e73df;
+  color: white;
+  cursor: pointer;
 }
+
+
 /* =========================================================
-   RESPONSIVE IMPROVEMENTS (DO NOT REMOVE EXISTING)
+   RESPONSIVE
 ========================================================= */
 
 /* Tablet */
 @media (max-width: 992px) {
 
   .settings-container {
-    padding: 30px 20px;
-  }
-
-  .chat-box {
-    width: 90%;
-    height: 480px;
+    padding: 30px 20px 90px;
   }
 
 }
 
-
-/* Large Mobile */
+/* Mobile */
 @media (max-width: 768px) {
 
   .settings-container {
-    padding: 20px 15px;
+    padding: 20px 15px 90px;
   }
 
   .settings-card {
     padding: 18px;
   }
 
-  .theme-options button {
-    margin-bottom: 8px;
+  .theme-options {
+    flex-direction: column;
   }
 
-  .chat-box {
-    width: 95%;
-    height: 90vh;
+  .theme-options button {
+    width: 100%;
   }
 
 }
-
 
 /* Small Phones */
 @media (max-width: 480px) {
 
-  .settings-container {
-    padding: 15px;
-  }
-
-  .settings-btn {
-    width: 100%;
-  }
-
-  .theme-options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .theme-options button {
-    width: 100%;
-    margin-right: 0;
-  }
-
-  /* Fullscreen Chat Mode */
-  .chat-overlay {
-    align-items: flex-end;
-  }
-
   .chat-box {
-    width: 100%;
-    height: 100vh;
-    border-radius: 0;
-  }
-
-  .chat-header {
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  .chat-messages {
-    padding: 12px;
+    border-radius: 16px;
+    padding: 16px;
   }
 
   .chat-input {
-    padding: 10px;
-  }
-
-  .chat-input input {
-    padding: 10px;
+    flex-direction: column;
   }
 
   .chat-input button {
-    padding: 10px 12px;
+    width: 100%;
   }
 
 }
+.chat-message {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 75%;
+  font-size: 14px;
+}
 
+.chat-message.admin {
+  background: #f1f1f1;
+  align-self: flex-start;
+}
 
-/* Short Height Devices */
-@media (max-height: 600px) {
+.chat-message.user {
+  background: #4e73df;
+  color: white;
+  align-self: flex-end;
+}
 
-  .chat-box {
-    height: 100vh;
-  }
-
+.chat-messages {
+  display: flex;
+  flex-direction: column;
 }
