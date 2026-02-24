@@ -15,10 +15,12 @@
 /* ============================= */
 
 .settings-card {
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 20px;
   border-radius: 14px;
   margin-bottom: 20px;
+  border: 1px solid var(--border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -26,13 +28,21 @@
   margin-bottom: 10px;
 }
 
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
+
 .settings-btn {
   padding: 8px 14px;
   border-radius: 8px;
   border: none;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   cursor: pointer;
+}
+
+.settings-btn:hover {
+  opacity: 0.9;
 }
 
 /* ============================= */
@@ -49,9 +59,13 @@
   padding: 8px 14px;
   border-radius: 8px;
   border: none;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   cursor: pointer;
+}
+
+.theme-options button:hover {
+  opacity: 0.9;
 }
 
 /* ============================= */
@@ -76,7 +90,8 @@
   width: 420px;
   max-width: 95%;
   height: 500px;
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -89,7 +104,7 @@
 
 .chat-header {
   padding: 15px;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   display: flex;
   justify-content: space-between;
@@ -112,7 +127,7 @@
   flex: 1;
   padding: 15px;
   overflow-y: auto;
-  background: #f8f9fc;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -126,12 +141,13 @@
 }
 
 .chat-message.admin {
-  background: #e9ecef;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   align-self: flex-start;
 }
 
 .chat-message.user {
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   align-self: flex-end;
 }
@@ -144,28 +160,34 @@
   display: flex;
   padding: 10px;
   gap: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border);
 }
 
 .chat-input input {
   flex: 1;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
 }
 
 .chat-input input:focus {
   outline: none;
-  border-color: #4e73df;
+  border-color: var(--primary);
 }
 
 .chat-input button {
   padding: 8px 14px;
   border-radius: 8px;
   border: none;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   cursor: pointer;
+}
+
+.chat-input button:hover {
+  opacity: 0.9;
 }
 
 /* ============================= */

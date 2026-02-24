@@ -11,14 +11,15 @@
 /* ============================= */
 
 .profile-card {
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 25px;
   border-radius: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
 }
 
 .profile-card h2 {
@@ -35,12 +36,12 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
 }
 
 .profile-actions .logout-btn {
-  background: #e74a3b;
+  background: var(--danger);
 }
 
 /* ============================= */
@@ -55,11 +56,12 @@
 
 .stat-box {
   flex: 1;
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 20px;
   border-radius: 14px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
 }
 
 .stat-box h3 {
@@ -75,11 +77,12 @@
 }
 
 .order-card {
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   border-radius: 14px;
   padding: 18px;
   margin-bottom: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
 }
 
 .order-header {
@@ -95,25 +98,30 @@
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
-  background: #eee;
+  background: var(--bg);
+  border: 1px solid var(--border);
 }
 
-/* Example status colors */
+/* Status colors (theme safe) */
+
 .status.processing {
-  background: #fff3cd;
+  background: rgba(255, 193, 7, 0.15);
+  color: #b8860b;
 }
 
 .status.delivered {
-  background: #d4edda;
+  background: rgba(40, 167, 69, 0.15);
+  color: #2e7d32;
 }
 
 .status.cancelled {
-  background: #f8d7da;
+  background: rgba(220, 53, 69, 0.15);
+  color: #b02a37;
 }
 
 .order-details {
   margin-top: 15px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border);
   padding-top: 15px;
 }
 
@@ -128,14 +136,14 @@
   width: 60px;
   height: 60px;
   object-fit: contain;
-  background: #f8f9fc;
+  background: var(--bg);
   border-radius: 8px;
 }
 
 .cancel-btn {
   margin-top: 10px;
   padding: 6px 12px;
-  background: #e74a3b;
+  background: var(--danger);
   border: none;
   border-radius: 8px;
   color: white;
@@ -159,11 +167,13 @@
 .modal {
   width: 450px;
   max-width: 95%;
-  background: white;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 25px;
   border-radius: 16px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border);
 }
 
 .modal h2 {
@@ -175,11 +185,20 @@
   padding: 10px 12px;
   margin-bottom: 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: var(--primary);
 }
 
 .modal hr {
   margin: 15px 0;
+  border: none;
+  border-top: 1px solid var(--border);
 }
 
 .modal-actions {
@@ -194,13 +213,14 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
 }
 
 .modal-actions button:last-child {
-  background: #ccc;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 /* ============================= */

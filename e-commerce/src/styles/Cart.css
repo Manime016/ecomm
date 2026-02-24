@@ -17,13 +17,15 @@
 .empty-cart {
   text-align: center;
   padding: 60px 0;
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
 }
 
 .empty-cart h3 {
-  color: #555;
+  color: var(--text);
+  opacity: 0.7;
 }
 
 /* ============================= */
@@ -47,10 +49,11 @@
 .cart-item {
   display: flex;
   gap: 20px;
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
   margin-bottom: 20px;
 }
 
@@ -59,7 +62,7 @@
   height: 100px;
   object-fit: contain;
   border-radius: 12px;
-  background: #f8f9fc;
+  background: var(--bg);
 }
 
 /* ============================= */
@@ -75,7 +78,8 @@
 }
 
 .item-info p {
-  color: #666;
+  color: var(--text);
+  opacity: 0.7;
   font-size: 14px;
 }
 
@@ -95,7 +99,7 @@
   height: 32px;
   border-radius: 50%;
   border: none;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -120,7 +124,7 @@
 .item-total button {
   margin-top: 10px;
   padding: 6px 12px;
-  background: #e74a3b;
+  background: var(--danger);
   border: none;
   border-radius: 10px;
   color: white;
@@ -134,10 +138,11 @@
 
 .cart-summary {
   flex: 1;
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 25px;
   border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
   position: sticky;
   top: 100px;
 }
@@ -148,13 +153,14 @@
 
 .cart-summary p {
   margin: 6px 0;
-  color: #555;
+  color: var(--text);
+  opacity: 0.75;
 }
 
 .cart-summary hr {
   margin: 15px 0;
   border: none;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border);
 }
 
 .cart-summary h2 {
@@ -170,7 +176,7 @@
   padding: 14px;
   border-radius: 12px;
   border: none;
-  background: #4e73df;
+  background: var(--primary);
   color: white;
   font-size: 16px;
   font-weight: 600;

@@ -1,13 +1,14 @@
 /* ========================================= */
-/* SIDEBAR STYLING (NO POSITIONING HERE) */
+/* SIDEBAR STYLING */
 /* ========================================= */
 
 .sidebar {
-  background: #111;
-  color: white;
+  background: var(--card-bg);
+  color: var(--text);
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--border);
 }
 
 .sidebar-logo {
@@ -29,7 +30,7 @@
   gap: 12px;
   padding: 10px 12px;
   border-radius: 8px;
-  color: white;
+  color: var(--text);
   text-decoration: none;
   transition: 0.2s ease;
   font-size: 15px;
@@ -37,11 +38,17 @@
 
 .sidebar-link:hover,
 .logout-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.dark .sidebar-link:hover,
+body.dark .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-link.active {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--primary);
+  color: white;
 }
 
 .logout-btn {
@@ -79,6 +86,8 @@
   border-radius: 18px;
   overflow: hidden;
   margin-bottom: 40px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
 }
 
 .hero-slides {
@@ -99,7 +108,8 @@
   left: 30px;
   font-size: 38px;
   font-weight: bold;
-  color: white;
+  color: var(--text);
+  opacity: 0.08;
 }
 
 /* ========================================= */
@@ -130,13 +140,15 @@
 /* ========================================= */
 
 .product-card {
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   border-radius: 16px;
   padding: 18px;
   text-align: center;
   transition: 0.3s ease;
   cursor: pointer;
   position: relative;
+  border: 1px solid var(--border);
 }
 
 .product-card:hover {
@@ -163,6 +175,10 @@
   margin-bottom: 10px;
 }
 
+/* ========================================= */
+/* BUTTONS */
+/* ========================================= */
+
 .cart-btn,
 .buy-now-btn,
 .show-more-btn {
@@ -174,15 +190,25 @@
 }
 
 .cart-btn {
-  background: #4e73df;
+  background: var(--primary);
   color: white;
 }
 
 .buy-now-btn {
-  background: #111;
+  background: var(--primary);
   color: white;
   margin-top: 8px;
 }
+
+.show-more-btn {
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* ========================================= */
+/* QTY CONTROLS */
+/* ========================================= */
 
 .qty-controls {
   display: flex;
@@ -193,6 +219,10 @@
 
 .qty-controls button {
   padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
 }
 
 /* ========================================= */
@@ -203,7 +233,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: red;
+  background: var(--danger);
   color: white;
   padding: 5px 10px;
   font-size: 12px;
@@ -238,6 +268,8 @@
     flex-direction: row;
     justify-content: space-around;
     padding: 10px;
+    border-right: none;
+    border-top: 1px solid var(--border);
   }
 
   .sidebar-logo {

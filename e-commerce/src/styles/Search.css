@@ -18,14 +18,16 @@
   width: 100%;
   padding: 12px 15px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   margin-bottom: 30px;
   font-size: 14px;
+  background: var(--card-bg);
+  color: var(--text);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #4e73df;
+  border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.15);
 }
 
@@ -44,14 +46,15 @@
 /* ============================= */
 
 .product-card {
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text);
   border-radius: 16px;
   padding: 18px;
   text-align: center;
   transition: 0.3s ease;
   cursor: pointer;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
 }
 
 .product-card:hover {
@@ -81,7 +84,8 @@
 .extra-info {
   font-size: 13px;
   margin-bottom: 10px;
-  color: #555;
+  color: var(--text);
+  opacity: 0.7;
 }
 
 /* ============================= */
@@ -99,12 +103,12 @@
 }
 
 .add-btn {
-  background: #4e73df;
+  background: var(--primary);
   color: white;
 }
 
 .remove-btn {
-  background: #e74a3b;
+  background: var(--danger);
   color: white;
 }
 
