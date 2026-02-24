@@ -30,12 +30,23 @@ app.use(
   })
 );
 
-/* ================= CORS FIX ================= */
+/* ================= CORS FIX (PERMANENT) ================= */
 app.use(
   cors({
-    origin: [
-      "https://ecomm-kz0cbs634-manime016s-projects.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (Postman, mobile apps)
+      if (!origin) return callback(null, true);
+
+      // Allow all Vercel deployments
+      if (
+        origin.includes("vercel.app") ||
+        origin.includes("localhost")
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
