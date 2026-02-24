@@ -423,3 +423,122 @@
     transform: translateY(0);
   }
 }
+/* =========================================================
+   RESPONSIVE IMPROVEMENTS
+========================================================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+
+  .profile-container {
+    padding: 30px 20px;
+  }
+
+  .profile-card {
+    padding: 25px 25px;
+  }
+
+  .profile-card h2 {
+    font-size: 22px;
+  }
+
+  .stat-box {
+    padding: 20px;
+  }
+
+  .order-header {
+    padding: 18px 20px;
+  }
+
+  .order-details {
+    padding: 20px;
+  }
+}
+
+
+/* Mobile */
+@media (max-width: 768px) {
+
+  .profile-container {
+    padding: 20px 15px;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .profile-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .profile-actions button {
+    margin-left: 0;
+  }
+
+  .profile-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .status {
+    align-self: flex-start;
+  }
+
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-item img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .profile-card h2 {
+    font-size: 18px;
+  }
+
+  .stat-box h3 {
+    font-size: 20px;
+  }
+
+  .order-header p {
+    font-size: 13px;
+  }
+
+  .order-item img {
+    width: 70px;
+    height: 70px;
+  }
+
+}

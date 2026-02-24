@@ -440,3 +440,75 @@ body.teal {
   font-size: 13px;
   font-weight: 600;
 }
+/* =========================================================
+   MOBILE SIDEBAR COLLAPSE (ICON MODE)
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .sidebar {
+    width: 70px;
+    padding: 20px 10px;
+    align-items: center;
+  }
+
+  .logo h2 {
+    display: none;
+  }
+
+  .sidebar-menu {
+    align-items: center;
+  }
+
+  .sidebar-link {
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 0; /* hides text */
+  }
+
+  /* If you are using icons inside links */
+  .sidebar-link i,
+  .sidebar-link svg {
+    font-size: 18px;
+  }
+
+  .logout-btn {
+    font-size: 0;
+    padding: 12px 0;
+  }
+
+  .logout-btn i,
+  .logout-btn svg {
+    font-size: 18px;
+  }
+
+  .dashboard-content,
+  .home-content {
+    padding: 20px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-text {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-banner {
+    height: 180px;
+  }
+
+  .hero-text {
+    font-size: 20px;
+  }
+
+}

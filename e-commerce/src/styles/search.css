@@ -136,3 +136,99 @@
   background: #d9363e;
   transform: scale(1.05);
 }
+/* =========================================================
+   RESPONSIVE IMPROVEMENTS (DO NOT REMOVE EXISTING)
+========================================================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+
+  .search-page {
+    padding: 30px 20px;
+  }
+
+  .product-grid {
+    gap: 20px;
+  }
+
+  .product-card img {
+    height: 170px;
+  }
+
+}
+
+
+/* Large Mobile */
+@media (max-width: 768px) {
+
+  .search-page {
+    padding: 20px 15px;
+  }
+
+  .search-input {
+    font-size: 15px;
+    padding: 12px 16px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .product-card {
+    padding: 14px;
+  }
+
+  .product-card img {
+    height: 150px;
+  }
+
+  .product-card h3 {
+    font-size: 15px;
+  }
+
+  .price {
+    font-size: 15px;
+  }
+
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .product-card {
+    padding: 14px;
+  }
+
+  .product-card img {
+    height: 180px;
+  }
+
+  .add-btn,
+  .remove-btn {
+    width: 100%;
+    font-size: 14px;
+  }
+
+}
+
+
+/* Extra Small Devices */
+@media (max-width: 360px) {
+
+  .product-card img {
+    height: 160px;
+  }
+
+}

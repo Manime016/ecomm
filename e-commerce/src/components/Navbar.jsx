@@ -13,7 +13,7 @@ function Navbar() {
     if (path === "/dashboard") return "Home";
     if (path === "/search") return "Search";
     if (path === "/cart") return "Cart";
-    if (path === "/profile") return "Profile";
+    if (path === "/Profile") return "Profile";
     if (path === "/settings") return "Settings";
 
     return "App";

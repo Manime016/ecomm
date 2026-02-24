@@ -1,7 +1,5 @@
 import express from "express";
 import multer from "multer";
-import { protect } from "../middleware/authMiddleware.js";
-import isAdmin from "../middleware/adminMiddleware.js";
 import {
   createProduct,
   getAllProducts,
@@ -27,37 +25,29 @@ const upload = multer({ storage });
 // Get all products
 router.get("/", getAllProducts);
 
-/* ================= ADMIN ONLY ================= */
-
-// Create product
+// Create product (UNPROTECTED)
 router.post(
   "/",
-  protect,
-  isAdmin,
   upload.single("image"),
   createProduct
 );
 
-// Update product
+// Update product (UNPROTECTED)
 router.put(
   "/:id",
-  protect,
-  isAdmin,
   upload.single("image"),
   updateProduct
 );
 
-// Delete product
+// Delete product (UNPROTECTED)
 router.delete(
   "/:id",
-  protect,
-  isAdmin,
   deleteProduct
 );
 
 /* ================= USER ================= */
 
-// Save recent search
-router.post("/recent-search", protect, saveRecentSearch);
+// Save recent search (still protected if you want — remove if needed)
+router.post("/recent-search", saveRecentSearch);
 
 export default router;

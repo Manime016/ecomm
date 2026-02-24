@@ -416,3 +416,125 @@
     margin-top: 10px;
   }
 }
+/* =========================================================
+   RESPONSIVE IMPROVEMENTS (DO NOT REMOVE EXISTING)
+========================================================= */
+
+/* Tablet Improvements */
+@media (max-width: 992px) {
+
+  .cart-container {
+    padding: 30px 20px;
+  }
+
+  .cart-item {
+    gap: 15px;
+    padding: 18px;
+  }
+
+  .cart-item img {
+    width: 90px;
+    height: 90px;
+  }
+
+  .cart-summary {
+    padding: 20px;
+  }
+
+}
+
+
+/* Large Mobile */
+@media (max-width: 768px) {
+
+  .cart-container {
+    padding: 20px 15px;
+  }
+
+  .cart-layout {
+    flex-direction: column;
+  }
+
+  .cart-summary {
+    position: static;
+    margin-top: 20px;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .item-total {
+    width: 100%;
+    text-align: left;
+    margin-top: 12px;
+  }
+
+  .qty-control {
+    gap: 10px;
+  }
+
+  .qty-control button {
+    width: 34px;
+    height: 34px;
+  }
+
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .cart-container h2 {
+    font-size: 20px;
+  }
+
+  .cart-item img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .item-info h4 {
+    font-size: 14px;
+  }
+
+  .item-info p {
+    font-size: 13px;
+  }
+
+  .checkout-btn {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .checkout-modal {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .address-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+
+  .modal-buttons button {
+    width: 100%;
+  }
+
+}
+
+
+/* Very Small Devices (Short Height Fix) */
+@media (max-height: 600px) {
+
+  .checkout-modal {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+}
