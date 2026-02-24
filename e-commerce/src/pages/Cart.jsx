@@ -1,20 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/Cart.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const CART_API = `${BASE_URL}/api/cart`;
-const COUPON_API = `${BASE_URL}/api/coupons`;
 const ORDER_API = `${BASE_URL}/api/orders`;
 
 function Cart() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [cart, setCart] = useState([]);
-  const [selectedCoupon, setSelectedCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [discount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
@@ -61,26 +58,18 @@ function Cart() {
 
   const updateQuantity = async (productId, qty) => {
     if (qty < 1) return;
-    try {
-      await authAxios.put(`${CART_API}/update`, {
-        productId,
-        quantity: qty,
-      });
-      fetchCart();
-    } catch (err) {
-      console.error(err);
-    }
+    await authAxios.put(`${CART_API}/update`, {
+      productId,
+      quantity: qty,
+    });
+    fetchCart();
   };
 
   const removeItem = async (productId) => {
-    try {
-      await authAxios.delete(`${CART_API}/remove`, {
-        data: { productId },
-      });
-      fetchCart();
-    } catch (err) {
-      console.error(err);
-    }
+    await authAxios.delete(`${CART_API}/remove`, {
+      data: { productId },
+    });
+    fetchCart();
   };
 
   const subtotal = cart.reduce(
@@ -124,7 +113,6 @@ function Cart() {
           discount,
           deliveryCharge,
           totalAmount: total,
-          couponUsed: selectedCoupon,
           paymentMethod,
           address,
         });
@@ -136,7 +124,7 @@ function Cart() {
         return;
       }
 
-      /* ================= RAZORPAY ================= */
+      /* ================= ONLINE (UPI / CARD via Razorpay) ================= */
 
       const { data } = await authAxios.post(
         `${ORDER_API}/razorpay`,
@@ -155,6 +143,7 @@ function Cart() {
         order_id: data.id,
         name: "SHOPP111",
         description: "Order Payment",
+
         handler: async function (response) {
           await authAxios.post(`${ORDER_API}/verify`, response);
 
@@ -164,7 +153,6 @@ function Cart() {
             discount,
             deliveryCharge,
             totalAmount: total,
-            couponUsed: selectedCoupon,
             paymentMethod,
             address,
           });
@@ -174,6 +162,7 @@ function Cart() {
           alert("Payment Successful!");
           navigate("/profile");
         },
+
         theme: { color: "#4e73df" },
       };
 
@@ -222,7 +211,6 @@ function Cart() {
           <div className="cart-summary">
             <h3>Order Summary</h3>
             <p>Subtotal: ₹{subtotal}</p>
-            <p>Discount: -₹{discount}</p>
             <p>Delivery: ₹{deliveryCharge}</p>
             <hr />
             <h2>Total: ₹{total}</h2>
@@ -238,8 +226,6 @@ function Cart() {
         </div>
       )}
 
-      {/* ================= CHECKOUT MODAL ================= */}
-
       {showCheckoutModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -248,12 +234,12 @@ function Cart() {
 
             <h3>Delivery Address</h3>
 
-            <input name="houseNumber" placeholder="House / Flat No" value={address.houseNumber} onChange={handleAddressChange} />
-            <input name="locality" placeholder="Locality" value={address.locality} onChange={handleAddressChange} />
-            <input name="landmark" placeholder="Landmark" value={address.landmark} onChange={handleAddressChange} />
-            <input name="district" placeholder="District" value={address.district} onChange={handleAddressChange} />
-            <input name="state" placeholder="State" value={address.state} onChange={handleAddressChange} />
-            <input name="pincode" placeholder="Pincode" value={address.pincode} onChange={handleAddressChange} />
+            <input name="houseNumber" placeholder="House / Flat No" onChange={handleAddressChange} />
+            <input name="locality" placeholder="Locality" onChange={handleAddressChange} />
+            <input name="landmark" placeholder="Landmark" onChange={handleAddressChange} />
+            <input name="district" placeholder="District" onChange={handleAddressChange} />
+            <input name="state" placeholder="State" onChange={handleAddressChange} />
+            <input name="pincode" placeholder="Pincode" onChange={handleAddressChange} />
 
             <h3>Payment Method</h3>
 
@@ -272,11 +258,23 @@ function Cart() {
             <label>
               <input
                 type="radio"
-                value="RAZORPAY"
-                checked={paymentMethod === "RAZORPAY"}
+                value="UPI"
+                checked={paymentMethod === "UPI"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
-              Razorpay
+              UPI
+            </label>
+
+            <br />
+
+            <label>
+              <input
+                type="radio"
+                value="CARD"
+                checked={paymentMethod === "CARD"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              Credit / Debit Card
             </label>
 
             <div className="modal-actions">

@@ -15,7 +15,6 @@ export const addToCart = asyncHandler(async (req, res) => {
   const { productId } = req.body;
 
   const product = await Product.findById(productId);
-
   if (!product) {
     res.status(404);
     throw new Error("Product not found");
@@ -48,7 +47,6 @@ export const addToCart = asyncHandler(async (req, res) => {
   }
 
   await cart.save();
-
   res.json(cart);
 });
 
@@ -62,7 +60,6 @@ export const updateCartQuantity = asyncHandler(async (req, res) => {
   }
 
   const cart = await Cart.findOne({ user: req.user._id });
-
   const product = await Product.findById(productId);
 
   if (!cart || !product) {
@@ -87,7 +84,6 @@ export const updateCartQuantity = asyncHandler(async (req, res) => {
   item.quantity = quantity;
 
   await cart.save();
-
   res.json(cart);
 });
 
@@ -107,6 +103,20 @@ export const removeFromCart = asyncHandler(async (req, res) => {
   );
 
   await cart.save();
-
   res.json(cart);
+});
+
+/* ================= CLEAR ================= */
+export const clearCart = asyncHandler(async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user._id });
+
+  if (!cart) {
+    res.status(404);
+    throw new Error("Cart not found");
+  }
+
+  cart.items = [];
+  await cart.save();
+
+  res.json({ message: "Cart cleared successfully" });
 });
