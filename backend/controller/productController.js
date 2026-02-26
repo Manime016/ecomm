@@ -1,24 +1,9 @@
 import Product from "../models/product.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import cloudinary from "../config/cloudinary.js";
-import fs from "fs";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
-  const { name, price, category, description, stock } = req.body;
-
-  let imageUrl = null;
-
-  if (req.file) {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "products"
-    });
-
-    imageUrl = result.secure_url;
-
-    // Delete local file after upload
-    fs.unlinkSync(req.file.path);
-  }
+  const { name, price, category, description, stock, image } = req.body;
 
   const product = await Product.create({
     name,
@@ -26,7 +11,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     category,
     description,
     stock,
-    image: imageUrl,
+    image: image || null,
   });
 
   res.status(201).json(product);
@@ -64,17 +49,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   product.category = req.body.category ?? product.category;
   product.description = req.body.description ?? product.description;
   product.stock = req.body.stock ?? product.stock;
-
-  if (req.file) {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "products"
-    });
-
-    product.image = result.secure_url;
-
-    // Delete local file after upload
-    fs.unlinkSync(req.file.path);
-  }
+  product.image = req.body.image ?? product.image;
 
   const updatedProduct = await product.save();
   res.json(updatedProduct);

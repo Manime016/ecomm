@@ -1,7 +1,4 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 import {
   createProduct,
   getAllProducts,
@@ -13,33 +10,17 @@ import {
 
 const router = express.Router();
 
-/* ================= ENSURE UPLOADS FOLDER EXISTS ================= */
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-/* ================= MULTER DISK STORAGE ================= */
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
-});
-
-const upload = multer({ storage });
-
 /* ================= PUBLIC ================= */
 
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
-router.post("/", upload.single("image"), createProduct);
-router.put("/:id", upload.single("image"), updateProduct);
+router.post("/", createProduct);
+router.put("/:id", updateProduct);
 
 router.delete("/:id", deleteProduct);
+
+/* ================= USER ================= */
 
 router.post("/recent-search", saveRecentSearch);
 
