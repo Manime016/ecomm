@@ -29,7 +29,7 @@ function AddProduct() {
 
     const data = new FormData();
     data.append("file", imageFile);
-    data.append("de9zaqoas", "726791459125595");
+    data.append("upload_preset", "ecommimages");
 
     const res = await axios.post(
       `https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload`,
