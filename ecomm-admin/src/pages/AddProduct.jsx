@@ -5,7 +5,6 @@ import "./AddProduct.css";
 const API = `${import.meta.env.VITE_API_URL}/api/products`;
 
 function AddProduct() {
-
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -15,68 +14,40 @@ function AddProduct() {
   });
 
   const [imageFile, setImageFile] = useState(null);
-  const [imageLink, setImageLink] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: ""
+  });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ================= CLOUDINARY UPLOAD FUNCTION =================
-  const uploadToCloudinary = async () => {
-    try {
-      if (!imageFile) {
-        console.log("No file selected");
-        return null;
-      }
-
-      console.log("Uploading to Cloudinary...");
-
-      const data = new FormData();
-      data.append("file", imageFile);
-      data.append("upload_preset", "ecommimages"); // your unsigned preset
-
-      const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/de9zaqoas/image/upload",
-        data
-      );
-
-      console.log("Upload success:", res.data.secure_url);
-
-      return res.data.secure_url;
-
-    } catch (error) {
-      console.error("Cloudinary upload error:",
-        error.response?.data || error.message
-      );
-      return null;
-    }
-  };
-  // ===============================================================
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      let finalImage = "";
+      const data = new FormData();
+
+      data.append("name", formData.name);
+      data.append("price", formData.price);
+      data.append("category", formData.category);
+      data.append("description", formData.description);
+      data.append("stock", formData.stock);
 
       if (imageFile) {
-        finalImage = await uploadToCloudinary();
-      } else if (imageLink) {
-        finalImage = imageLink;
+        data.append("image", imageFile);
       }
 
-      const productData = {
-        ...formData,
-        image: finalImage
-      };
+      await axios.post(API, data);
 
-      console.log("Sending to backend:", productData);
-
-      await axios.post(API, productData);
-
-      setSuccessMessage("Product Added Successfully!");
+      setPopup({
+        show: true,
+        message: "Product uploaded successfully!",
+        type: "success"
+      });
 
       setFormData({
         name: "",
@@ -87,28 +58,23 @@ function AddProduct() {
       });
 
       setImageFile(null);
-      setImageLink("");
 
-    } catch (err) {
-      console.error("Submit error:", err);
-      setErrorMessage("Operation Failed");
+    } catch (error) {
+      console.error(error);
+
+      setPopup({
+        show: true,
+        message: "Upload failed. Please try again.",
+        type: "error"
+      });
     }
-
-    setTimeout(() => {
-      setSuccessMessage("");
-      setErrorMessage("");
-    }, 3000);
   };
 
   return (
     <div className="admin-container">
       <h2>Add Product</h2>
 
-      {successMessage && <div className="success-popup">{successMessage}</div>}
-      {errorMessage && <div className="error-popup">{errorMessage}</div>}
-
       <form onSubmit={handleSubmit}>
-
         <input
           type="text"
           name="name"
@@ -155,29 +121,25 @@ function AddProduct() {
           onChange={handleChange}
         />
 
-        {/* OPTION 1: FILE UPLOAD */}
         <input
           type="file"
-          onChange={(e) => {
-            setImageFile(e.target.files[0]);
-            setImageLink("");
-          }}
-        />
-
-        {/* OPTION 2: IMAGE LINK */}
-        <input
-          type="text"
-          placeholder="Or Paste Image URL"
-          value={imageLink}
-          onChange={(e) => {
-            setImageLink(e.target.value);
-            setImageFile(null);
-          }}
+          onChange={(e) => setImageFile(e.target.files[0])}
         />
 
         <button type="submit">Add Product</button>
-
       </form>
+
+      {popup.show && (
+        <div className="popup-overlay">
+          <div className={`popup-box ${popup.type}`}>
+            <h3>{popup.type === "success" ? "Success" : "Error"}</h3>
+            <p>{popup.message}</p>
+            <button onClick={() => setPopup({ show: false })}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

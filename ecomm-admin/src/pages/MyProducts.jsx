@@ -5,10 +5,15 @@ import "./AddProduct.css";
 const API = `${import.meta.env.VITE_API_URL}/api/products`;
 
 function MyProducts() {
-
   const [products, setProducts] = useState([]);
   const [editId, setEditId] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: ""
+  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,13 +24,12 @@ function MyProducts() {
     image: ""
   });
 
-  // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
     try {
       const res = await axios.get(API);
       setProducts(res.data);
     } catch (error) {
-      console.error("Fetch error:", error);
+      console.error(error);
     }
   };
 
@@ -33,7 +37,6 @@ function MyProducts() {
     fetchProducts();
   }, []);
 
-  // ================= EDIT =================
   const handleEdit = (product) => {
     setEditId(product._id);
     setFormData(product);
@@ -41,69 +44,64 @@ function MyProducts() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ================= CLOUDINARY UPLOAD =================
-  const uploadToCloudinary = async () => {
-    try {
-      if (!imageFile) {
-        return formData.image; // keep old image
-      }
-
-      console.log("Uploading new image to Cloudinary...");
-
-      const data = new FormData();
-      data.append("file", imageFile);
-      data.append("upload_preset", "ecommimages");
-
-      const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/de9zaqoas/image/upload",
-        data
-      );
-
-      console.log("New image URL:", res.data.secure_url);
-
-      return res.data.secure_url;
-
-    } catch (error) {
-      console.error("Cloud upload error:",
-        error.response?.data || error.message
-      );
-      return formData.image;
-    }
-  };
-  // ====================================================
-
-  // ================= UPDATE =================
   const handleUpdate = async (e) => {
     e.preventDefault();
 
     try {
-      const uploadedImage = await uploadToCloudinary();
+      const data = new FormData();
 
-      const updatedData = {
-        ...formData,
-        image: uploadedImage
-      };
+      data.append("name", formData.name);
+      data.append("price", formData.price);
+      data.append("category", formData.category);
+      data.append("description", formData.description);
+      data.append("stock", formData.stock);
 
-      console.log("Updating product:", updatedData);
+      if (imageFile) {
+        data.append("image", imageFile);
+      }
 
-      await axios.put(`${API}/${editId}`, updatedData);
+      await axios.put(`${API}/${editId}`, data);
+
+      setPopup({
+        show: true,
+        message: "Product updated successfully!",
+        type: "success"
+      });
 
       setEditId(null);
       setImageFile(null);
       fetchProducts();
 
     } catch (error) {
-      console.error("Update error:", error);
+      console.error(error);
+
+      setPopup({
+        show: true,
+        message: "Update failed. Please try again.",
+        type: "error"
+      });
     }
   };
 
-  // ================= DELETE =================
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API}/${id}`);
       fetchProducts();
+
+      setPopup({
+        show: true,
+        message: "Product deleted successfully!",
+        type: "success"
+      });
+
     } catch (error) {
-      console.error("Delete error:", error);
+      console.error(error);
+
+      setPopup({
+        show: true,
+        message: "Delete failed. Please try again.",
+        type: "error"
+      });
     }
   };
 
@@ -145,7 +143,6 @@ function MyProducts() {
               placeholder="Stock"
             />
 
-            {/* FILE INPUT FOR NEW IMAGE */}
             <input
               type="file"
               onChange={(e) => setImageFile(e.target.files[0])}
@@ -180,6 +177,17 @@ function MyProducts() {
         ))}
       </div>
 
+      {popup.show && (
+        <div className="popup-overlay">
+          <div className={`popup-box ${popup.type}`}>
+            <h3>{popup.type === "success" ? "Success" : "Error"}</h3>
+            <p>{popup.message}</p>
+            <button onClick={() => setPopup({ show: false })}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
