@@ -72,3 +72,72 @@ a:hover {
     gap: 10px;
   }
 }
+/* ================= DASHBOARD ================= */
+
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.dashboard-sidebar {
+  width: 220px;
+  background: #111;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.dashboard-sidebar h3 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.dashboard-sidebar button {
+  background: #222;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dashboard-sidebar button:hover {
+  background: #333;
+}
+
+.dashboard-sidebar button.active {
+  background: #ff4d4d;
+}
+
+/* Content */
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    flex-direction: column;
+  }
+
+  .dashboard-sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .dashboard-sidebar h3 {
+    display: none;
+  }
+
+  .dashboard-content {
+    padding: 15px;
+  }
+}
