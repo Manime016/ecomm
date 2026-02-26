@@ -3,6 +3,7 @@
   max-width: 900px;
   margin: 40px auto;
   padding: 25px;
+  box-sizing: border-box;
 }
 
 /* ================= FORM ================= */
@@ -14,12 +15,30 @@ form {
   margin-bottom: 40px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #ff4d4d;
+}
+
+/* ================= BUTTONS ================= */
 
 button {
   padding: 12px;
@@ -28,6 +47,7 @@ button {
   cursor: pointer;
   font-weight: 500;
   transition: 0.2s ease;
+  width: 100%;
 }
 
 button:hover {
@@ -53,6 +73,7 @@ button[type="button"] {
   margin-bottom: 15px;
   border-radius: 6px;
   text-align: center;
+  font-size: 14px;
 }
 
 .error-popup {
@@ -62,6 +83,7 @@ button[type="button"] {
   margin-bottom: 15px;
   border-radius: 6px;
   text-align: center;
+  font-size: 14px;
 }
 
 /* ================= GRID ================= */
@@ -79,16 +101,17 @@ button[type="button"] {
   background: #ffffff;
   border-radius: 12px;
   padding: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   transition: 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
 .product-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .product-card img {
@@ -102,7 +125,6 @@ button[type="button"] {
 .product-card h4 {
   margin: 5px 0;
   font-size: 15px;
-  text-align: center;
 }
 
 .price {
@@ -117,6 +139,8 @@ button[type="button"] {
   margin-bottom: 10px;
 }
 
+/* ================= CARD BUTTONS ================= */
+
 .card-buttons {
   display: flex;
   gap: 10px;
@@ -125,7 +149,7 @@ button[type="button"] {
 
 .card-buttons button {
   flex: 1;
-  padding: 6px;
+  padding: 8px;
   font-size: 12px;
   border-radius: 6px;
 }
@@ -138,4 +162,69 @@ button[type="button"] {
 .card-buttons button:last-child {
   background: #f44336;
   color: white;
+}
+
+/* ================= TABLET RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+  }
+
+  .product-card img {
+    height: 130px;
+  }
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 480px) {
+  .admin-container {
+    padding: 15px;
+    margin: 15px auto;
+  }
+
+  form {
+    gap: 12px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .product-card {
+    padding: 12px;
+  }
+
+  .product-card img {
+    height: 160px;
+  }
+
+  .card-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-buttons button {
+    width: 100%;
+  }
 }

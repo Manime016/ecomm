@@ -1,14 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import "./AddProduct.css";
 
-// ✅ PRODUCTION SAFE API
 const API = `${import.meta.env.VITE_API_URL}/api/products`;
 
 function AddProduct() {
-  const [products, setProducts] = useState([]);
-  const [editId, setEditId] = useState(null);
-
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -18,30 +14,14 @@ function AddProduct() {
   });
 
   const [image, setImage] = useState(null);
+  const [imageLink, setImageLink] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // ================= FETCH PRODUCTS =================
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get(API);
-      setProducts(res.data);
-    } catch (err) {
-      console.log("Fetch error:", err);
-      setErrorMessage("Failed to fetch products");
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ================= ADD OR UPDATE =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,24 +32,22 @@ function AddProduct() {
         data.append(key, formData[key]);
       });
 
+      // ✅ If file selected
       if (image) {
         data.append("image", image);
       }
 
-      if (editId) {
-        await axios.put(`${API}/${editId}`, data, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        setSuccessMessage("Product Updated Successfully!");
-      } else {
-        await axios.post(API, data, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        setSuccessMessage("Product Added Successfully!");
+      // ✅ If image link provided
+      if (imageLink) {
+        data.append("image", imageLink);
       }
 
+      await axios.post(API, data, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      setSuccessMessage("Product Added Successfully!");
       resetForm();
-      fetchProducts();
     } catch (err) {
       console.log(err);
       setErrorMessage("Operation Failed");
@@ -81,41 +59,7 @@ function AddProduct() {
     }, 3000);
   };
 
-  // ================= EDIT =================
-  const handleEdit = (product) => {
-    setEditId(product._id);
-
-    setFormData({
-      name: product.name,
-      price: product.price,
-      category: product.category,
-      description: product.description,
-      stock: product.stock
-    });
-
-    setImage(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // ================= DELETE =================
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${API}/${id}`);
-      setSuccessMessage("Product Deleted Successfully!");
-      fetchProducts();
-    } catch (err) {
-      setErrorMessage("Delete Failed");
-    }
-
-    setTimeout(() => {
-      setSuccessMessage("");
-      setErrorMessage("");
-    }, 3000);
-  };
-
-  // ================= RESET =================
   const resetForm = () => {
-    setEditId(null);
     setFormData({
       name: "",
       price: "",
@@ -124,11 +68,12 @@ function AddProduct() {
       stock: ""
     });
     setImage(null);
+    setImageLink("");
   };
 
   return (
     <div className="admin-container">
-      <h2>{editId ? "Edit Product" : "Add Product"}</h2>
+      <h2>Add Product</h2>
 
       {successMessage && <div className="success-popup">{successMessage}</div>}
       {errorMessage && <div className="error-popup">{errorMessage}</div>}
@@ -180,55 +125,28 @@ function AddProduct() {
           onChange={handleChange}
         />
 
+        {/* ✅ FILE OPTION */}
         <input
           type="file"
-          onChange={(e) => setImage(e.target.files[0])}
+          onChange={(e) => {
+            setImage(e.target.files[0]);
+            setImageLink("");
+          }}
         />
 
-        <button type="submit">
-          {editId ? "Update Product" : "Add Product"}
-        </button>
+        {/* ✅ IMAGE LINK OPTION */}
+        <input
+          type="text"
+          placeholder="Or Paste Image URL"
+          value={imageLink}
+          onChange={(e) => {
+            setImageLink(e.target.value);
+            setImage(null);
+          }}
+        />
 
-        {editId && (
-          <button type="button" onClick={resetForm}>
-            Cancel Edit
-          </button>
-        )}
+        <button type="submit">Add Product</button>
       </form>
-
-      {/* ================= PRODUCT GRID ================= */}
-
-      <div className="product-list">
-        <h3>All Products</h3>
-
-        {products.length === 0 && <p>No products added yet.</p>}
-
-        <div className="product-grid">
-          {products.map((product) => (
-            <div key={product._id} className="product-card">
-
-              <img
-                src={
-                  product.image
-                    ? product.image
-                    : "https://via.placeholder.com/150"
-                }
-                alt={product.name}
-              />
-
-              <h4>{product.name}</h4>
-              <p className="price">₹{product.price}</p>
-              <p className="category">{product.category}</p>
-
-              <div className="card-buttons">
-                <button onClick={() => handleEdit(product)}>Edit</button>
-                <button onClick={() => handleDelete(product._id)}>Delete</button>
-              </div>
-
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
