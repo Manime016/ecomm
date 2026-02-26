@@ -8,6 +8,7 @@ function MyProducts() {
 
   const [products, setProducts] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -30,14 +31,45 @@ function MyProducts() {
   const handleEdit = (product) => {
     setEditId(product._id);
     setFormData(product);
+    setImageFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ✅ Cloudinary Upload
+  const uploadToCloudinary = async () => {
+    if (!imageFile) return formData.image;
+
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("upload_preset", "ecommimages");
+
+    const res = await axios.post(
+      "https://api.cloudinary.com/v1_1/de9zaqoas/image/upload",
+      data
+    );
+
+    return res.data.secure_url;
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    await axios.put(`${API}/${editId}`, formData);
-    setEditId(null);
-    fetchProducts();
+
+    try {
+      const uploadedImage = await uploadToCloudinary();
+
+      const updatedData = {
+        ...formData,
+        image: uploadedImage
+      };
+
+      await axios.put(`${API}/${editId}`, updatedData);
+
+      setEditId(null);
+      fetchProducts();
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -52,19 +84,44 @@ function MyProducts() {
         <>
           <h2>Edit Product</h2>
           <form onSubmit={handleUpdate}>
-            <input name="name"
+
+            <input
               value={formData.name}
-              onChange={(e)=>setFormData({...formData,name:e.target.value})} />
+              onChange={(e)=>setFormData({...formData,name:e.target.value})}
+              placeholder="Product Name"
+            />
 
-            <input name="price"
+            <input
               value={formData.price}
-              onChange={(e)=>setFormData({...formData,price:e.target.value})} />
+              onChange={(e)=>setFormData({...formData,price:e.target.value})}
+              placeholder="Price"
+            />
 
-            <input name="image"
-              value={formData.image}
-              onChange={(e)=>setFormData({...formData,image:e.target.value})} />
+            <input
+              value={formData.category}
+              onChange={(e)=>setFormData({...formData,category:e.target.value})}
+              placeholder="Category"
+            />
 
-            <button type="submit">Update</button>
+            <textarea
+              value={formData.description}
+              onChange={(e)=>setFormData({...formData,description:e.target.value})}
+              placeholder="Description"
+            />
+
+            <input
+              value={formData.stock}
+              onChange={(e)=>setFormData({...formData,stock:e.target.value})}
+              placeholder="Stock"
+            />
+
+            {/* ✅ File Upload */}
+            <input
+              type="file"
+              onChange={(e) => setImageFile(e.target.files[0])}
+            />
+
+            <button type="submit">Update Product</button>
           </form>
         </>
       )}
