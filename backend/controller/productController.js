@@ -1,10 +1,30 @@
 import Product from "../models/product.js";
-import fs from "fs";
 import asyncHandler from "../utils/asyncHandler.js";
+import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
   const { name, price, category, description, stock } = req.body;
+
+  let imageUrl = null;
+
+  if (req.file) {
+    const uploadFromBuffer = (buffer) =>
+      new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "products" },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+
+    const result = await uploadFromBuffer(req.file.buffer);
+    imageUrl = result.secure_url;
+  }
 
   const product = await Product.create({
     name,
@@ -12,9 +32,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     category,
     description,
     stock,
-    image: req.file
-      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-      : null,
+    image: imageUrl,
   });
 
   res.status(201).json(product);
@@ -48,14 +66,20 @@ export const updateProduct = asyncHandler(async (req, res) => {
   }
 
   if (req.file) {
-    if (product.image) {
-      const imagePath = product.image.split("/uploads/")[1];
-      if (imagePath) {
-        fs.unlink(`uploads/${imagePath}`, () => {});
-      }
-    }
+    const uploadFromBuffer = (buffer) =>
+      new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "products" },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
 
-    product.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    const result = await uploadFromBuffer(req.file.buffer);
+    product.image = result.secure_url;
   }
 
   product.name = req.body.name || product.name;
@@ -75,13 +99,6 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   if (!product) {
     res.status(404);
     throw new Error("Product not found");
-  }
-
-  if (product.image) {
-    const imagePath = product.image.split("/uploads/")[1];
-    if (imagePath) {
-      fs.unlink(`uploads/${imagePath}`, () => {});
-    }
   }
 
   await product.deleteOne();

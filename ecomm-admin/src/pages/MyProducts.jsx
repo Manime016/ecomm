@@ -19,15 +19,21 @@ function MyProducts() {
     image: ""
   });
 
+  // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
-    const res = await axios.get(API);
-    setProducts(res.data);
+    try {
+      const res = await axios.get(API);
+      setProducts(res.data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // ================= EDIT =================
   const handleEdit = (product) => {
     setEditId(product._id);
     setFormData(product);
@@ -35,22 +41,38 @@ function MyProducts() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ✅ Cloudinary Upload
+  // ================= CLOUDINARY UPLOAD =================
   const uploadToCloudinary = async () => {
-    if (!imageFile) return formData.image;
+    try {
+      if (!imageFile) {
+        return formData.image; // keep old image
+      }
 
-    const data = new FormData();
-    data.append("file", imageFile);
-    data.append("upload_preset", "ecommimages");
+      console.log("Uploading new image to Cloudinary...");
 
-    const res = await axios.post(
-      "https://api.cloudinary.com/v1_1/de9zaqoas/image/upload",
-      data
-    );
+      const data = new FormData();
+      data.append("file", imageFile);
+      data.append("upload_preset", "ecommimages");
 
-    return res.data.secure_url;
+      const res = await axios.post(
+        "https://api.cloudinary.com/v1_1/de9zaqoas/image/upload",
+        data
+      );
+
+      console.log("New image URL:", res.data.secure_url);
+
+      return res.data.secure_url;
+
+    } catch (error) {
+      console.error("Cloud upload error:",
+        error.response?.data || error.message
+      );
+      return formData.image;
+    }
   };
+  // ====================================================
 
+  // ================= UPDATE =================
   const handleUpdate = async (e) => {
     e.preventDefault();
 
@@ -62,19 +84,27 @@ function MyProducts() {
         image: uploadedImage
       };
 
+      console.log("Updating product:", updatedData);
+
       await axios.put(`${API}/${editId}`, updatedData);
 
       setEditId(null);
+      setImageFile(null);
       fetchProducts();
 
     } catch (error) {
-      console.log(error);
+      console.error("Update error:", error);
     }
   };
 
+  // ================= DELETE =================
   const handleDelete = async (id) => {
-    await axios.delete(`${API}/${id}`);
-    fetchProducts();
+    try {
+      await axios.delete(`${API}/${id}`);
+      fetchProducts();
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
   };
 
   return (
@@ -115,7 +145,7 @@ function MyProducts() {
               placeholder="Stock"
             />
 
-            {/* ✅ File Upload */}
+            {/* FILE INPUT FOR NEW IMAGE */}
             <input
               type="file"
               onChange={(e) => setImageFile(e.target.files[0])}
@@ -149,6 +179,7 @@ function MyProducts() {
           </div>
         ))}
       </div>
+
     </div>
   );
 }

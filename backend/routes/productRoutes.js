@@ -11,14 +11,8 @@ import {
 
 const router = express.Router();
 
-// Multer Storage
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
-});
-
+/* ================= MULTER MEMORY STORAGE ================= */
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 /* ================= PUBLIC ================= */
@@ -26,22 +20,14 @@ const upload = multer({ storage });
 // Get all products
 router.get("/", getAllProducts);
 
-// Get product by ID  ← THIS FIXES YOUR ERROR
+// Get product by ID
 router.get("/:id", getProductById);
 
 // Create product
-router.post(
-  "/",
-  upload.single("image"),
-  createProduct
-);
+router.post("/", upload.single("image"), createProduct);
 
 // Update product
-router.put(
-  "/:id",
-  upload.single("image"),
-  updateProduct
-);
+router.put("/:id", upload.single("image"), updateProduct);
 
 // Delete product
 router.delete("/:id", deleteProduct);
