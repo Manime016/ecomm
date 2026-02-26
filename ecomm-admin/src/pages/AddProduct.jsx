@@ -5,6 +5,7 @@ import "./AddProduct.css";
 const API = `${import.meta.env.VITE_API_URL}/api/products`;
 
 function AddProduct() {
+
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -13,7 +14,7 @@ function AddProduct() {
     stock: ""
   });
 
-  const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [imageLink, setImageLink] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -22,34 +23,53 @@ function AddProduct() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // 🔥 Cloudinary Upload
+  const uploadToCloudinary = async () => {
+    if (!imageFile) return null;
+
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("de9zaqoas", "726791459125595");
+
+    const res = await axios.post(
+      `https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload`,
+      data
+    );
+
+    return res.data.secure_url;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const data = new FormData();
+      let finalImage = "";
 
-      Object.keys(formData).forEach((key) => {
-        data.append(key, formData[key]);
-      });
-
-      // ✅ If file selected
-      if (image) {
-        data.append("image", image);
+      if (imageFile) {
+        finalImage = await uploadToCloudinary();
+      } else if (imageLink) {
+        finalImage = imageLink;
       }
 
-      // ✅ If image link provided
-      if (imageLink) {
-        data.append("image", imageLink);
-      }
+      const data = {
+        ...formData,
+        image: finalImage
+      };
 
-      await axios.post(API, data, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      await axios.post(API, data);
 
       setSuccessMessage("Product Added Successfully!");
-      resetForm();
+      setFormData({
+        name: "",
+        price: "",
+        category: "",
+        description: "",
+        stock: ""
+      });
+      setImageFile(null);
+      setImageLink("");
+
     } catch (err) {
-      console.log(err);
       setErrorMessage("Operation Failed");
     }
 
@@ -57,18 +77,6 @@ function AddProduct() {
       setSuccessMessage("");
       setErrorMessage("");
     }, 3000);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      price: "",
-      category: "",
-      description: "",
-      stock: ""
-    });
-    setImage(null);
-    setImageLink("");
   };
 
   return (
@@ -79,30 +87,14 @@ function AddProduct() {
       {errorMessage && <div className="error-popup">{errorMessage}</div>}
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+        <input type="text" name="name" placeholder="Product Name"
+          value={formData.name} onChange={handleChange} required />
 
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          required
-        />
+        <input type="number" name="price" placeholder="Price"
+          value={formData.price} onChange={handleChange} required />
 
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-        >
+        <select name="category"
+          value={formData.category} onChange={handleChange} required>
           <option value="">Select Category</option>
           <option value="Makeup">Makeup</option>
           <option value="Electronics">Electronics</option>
@@ -110,40 +102,21 @@ function AddProduct() {
           <option value="Home Appliances">Home Appliances</option>
         </select>
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-        />
+        <textarea name="description" placeholder="Description"
+          value={formData.description} onChange={handleChange} />
 
-        <input
-          type="number"
-          name="stock"
-          placeholder="Stock"
-          value={formData.stock}
-          onChange={handleChange}
-        />
+        <input type="number" name="stock" placeholder="Stock"
+          value={formData.stock} onChange={handleChange} />
 
-        {/* ✅ FILE OPTION */}
-        <input
-          type="file"
-          onChange={(e) => {
-            setImage(e.target.files[0]);
-            setImageLink("");
-          }}
-        />
+        {/* OPTION 1 */}
+        <input type="file"
+          onChange={(e) => setImageFile(e.target.files[0])} />
 
-        {/* ✅ IMAGE LINK OPTION */}
-        <input
-          type="text"
+        {/* OPTION 2 */}
+        <input type="text"
           placeholder="Or Paste Image URL"
           value={imageLink}
-          onChange={(e) => {
-            setImageLink(e.target.value);
-            setImage(null);
-          }}
-        />
+          onChange={(e) => setImageLink(e.target.value)} />
 
         <button type="submit">Add Product</button>
       </form>
