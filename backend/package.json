@@ -23,8 +23,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^6.10.1",
     "razorpay": "^2.9.6",
-    "socket.io": "^4.8.3",
-    "streamifier": "^0.1.1"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"

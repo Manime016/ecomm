@@ -1,7 +1,7 @@
 import Product from "../models/product.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
+import fs from "fs";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
@@ -10,20 +10,14 @@ export const createProduct = asyncHandler(async (req, res) => {
   let imageUrl = null;
 
   if (req.file) {
-    const uploadFromBuffer = (buffer) =>
-      new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "products" },
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
-        streamifier.createReadStream(buffer).pipe(stream);
-      });
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "products"
+    });
 
-    const result = await uploadFromBuffer(req.file.buffer);
     imageUrl = result.secure_url;
+
+    // Delete local file after upload
+    fs.unlinkSync(req.file.path);
   }
 
   const product = await Product.create({
@@ -65,28 +59,22 @@ export const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
-  if (req.file) {
-    const uploadFromBuffer = (buffer) =>
-      new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "products" },
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
-        streamifier.createReadStream(buffer).pipe(stream);
-      });
-
-    const result = await uploadFromBuffer(req.file.buffer);
-    product.image = result.secure_url;
-  }
-
-  product.name = req.body.name || product.name;
-  product.price = req.body.price || product.price;
-  product.category = req.body.category || product.category;
-  product.description = req.body.description || product.description;
+  product.name = req.body.name ?? product.name;
+  product.price = req.body.price ?? product.price;
+  product.category = req.body.category ?? product.category;
+  product.description = req.body.description ?? product.description;
   product.stock = req.body.stock ?? product.stock;
+
+  if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "products"
+    });
+
+    product.image = result.secure_url;
+
+    // Delete local file after upload
+    fs.unlinkSync(req.file.path);
+  }
 
   const updatedProduct = await product.save();
   res.json(updatedProduct);
