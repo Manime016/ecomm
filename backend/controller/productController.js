@@ -1,9 +1,33 @@
 import Product from "../models/product.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import cloudinary from "../config/cloudinary.js";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
-  res.json({ message: "Create route OK" });
+  const { name, price, category, description, stock } = req.body;
+
+  let imageUrl = null;
+
+  if (req.file) {
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const uploadResult = await cloudinary.uploader.upload(base64, {
+      folder: "ecommimages",
+    });
+
+    imageUrl = uploadResult.secure_url;
+  }
+
+  const product = await Product.create({
+    name,
+    price: Number(price),
+    category,
+    description,
+    stock: Number(stock),
+    image: imageUrl,
+  });
+
+  res.status(201).json(product);
 });
 
 /* ================= GET ALL ================= */
@@ -25,17 +49,80 @@ export const getProductById = asyncHandler(async (req, res) => {
 });
 
 /* ================= UPDATE ================= */
-export const updateProduct = async (req, res) => {
-  console.log("UPDATE CONTROLLER REACHED");
-  return res.json({ message: "Update route working" });
-};
+export const updateProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  let imageUrl = product.image;
+
+  // If new image uploaded
+  if (req.file) {
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const uploadResult = await cloudinary.uploader.upload(base64, {
+      folder: "ecommimages",
+    });
+
+    imageUrl = uploadResult.secure_url;
+  }
+
+  // Update only if value provided
+  if (req.body.name !== undefined) {
+    product.name = req.body.name;
+  }
+
+  if (req.body.category !== undefined) {
+    product.category = req.body.category;
+  }
+
+  if (req.body.description !== undefined) {
+    product.description = req.body.description;
+  }
+
+  if (req.body.price !== undefined && req.body.price !== "") {
+    product.price = Number(req.body.price);
+  }
+
+  if (req.body.stock !== undefined && req.body.stock !== "") {
+    product.stock = Number(req.body.stock);
+  }
+
+  product.image = imageUrl;
+
+  const updatedProduct = await product.save();
+
+  res.json(updatedProduct);
+});
 
 /* ================= DELETE ================= */
 export const deleteProduct = asyncHandler(async (req, res) => {
-  res.json({ message: "Delete route OK" });
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  await product.deleteOne();
+  res.json({ message: "Product deleted successfully" });
 });
 
 /* ================= SAVE RECENT SEARCH ================= */
 export const saveRecentSearch = asyncHandler(async (req, res) => {
-  res.json({ message: "Recent search OK" });
+  const { query } = req.body;
+  const user = req.user;
+
+  user.recentSearches = user.recentSearches.filter(
+    (item) => item !== query
+  );
+
+  user.recentSearches.unshift(query);
+  user.recentSearches = user.recentSearches.slice(0, 5);
+
+  await user.save();
+  res.json(user.recentSearches);
 });

@@ -14,7 +14,11 @@ const router = express.Router();
 /* ================= MULTER SETUP ================= */
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 } // 2MB safety limit
+});
 
 /* ================= PUBLIC ================= */
 
@@ -23,12 +27,8 @@ router.get("/:id", getProductById);
 
 /* ================= ADMIN ================= */
 
-// CREATE still uses multer
 router.post("/", upload.single("image"), createProduct);
-
-// UPDATE does NOT use multer (for debugging)
-router.put("/:id", updateProduct);
-
+router.put("/:id", upload.single("image"), updateProduct);
 router.delete("/:id", deleteProduct);
 
 /* ================= USER ================= */
