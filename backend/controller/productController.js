@@ -4,35 +4,35 @@ import cloudinary from "../config/cloudinary.js";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
-  const { name, price, category, description, stock } = req.body;
+  try {
+    const { name, price, category, description, stock } = req.body;
 
-  let imageUrl = null;
+    let imageUrl = null;
 
-  if (req.file && req.file.buffer) {
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: "products" },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(req.file.buffer);
+    if (req.file) {
+      const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+      const uploadResult = await cloudinary.uploader.upload(base64, {
+        folder: "products",
+      });
+
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const product = await Product.create({
+      name,
+      price: Number(price),
+      category,
+      description,
+      stock: Number(stock),
+      image: imageUrl,
     });
 
-    imageUrl = uploadResult.secure_url;
+    res.status(201).json(product);
+  } catch (error) {
+    console.error("CREATE ERROR:", error);
+    res.status(500).json({ message: error.message });
   }
-
-  const product = await Product.create({
-    name,
-    price: Number(price),
-    category,
-    description,
-    stock: Number(stock),
-    image: imageUrl,
-  });
-
-  res.status(201).json(product);
 });
 
 /* ================= GET ALL ================= */
@@ -55,50 +55,50 @@ export const getProductById = asyncHandler(async (req, res) => {
 
 /* ================= UPDATE ================= */
 export const updateProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  try {
+    const product = await Product.findById(req.params.id);
 
-  if (!product) {
-    res.status(404);
-    throw new Error("Product not found");
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    let imageUrl = product.image;
+
+    // If new image selected
+    if (req.file) {
+      const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+      const uploadResult = await cloudinary.uploader.upload(base64, {
+        folder: "products",
+      });
+
+      imageUrl = uploadResult.secure_url;
+    }
+
+    // Safe field updates
+    if (req.body.name) product.name = req.body.name;
+    if (req.body.category) product.category = req.body.category;
+    if (req.body.description !== undefined)
+      product.description = req.body.description;
+
+    if (req.body.price !== undefined && req.body.price !== "") {
+      product.price = Number(req.body.price);
+    }
+
+    if (req.body.stock !== undefined && req.body.stock !== "") {
+      product.stock = Number(req.body.stock);
+    }
+
+    product.image = imageUrl;
+
+    const updatedProduct = await product.save();
+
+    res.json(updatedProduct);
+
+  } catch (error) {
+    console.error("UPDATE ERROR:", error);
+    res.status(500).json({ message: error.message });
   }
-
-  let imageUrl = product.image;
-
-  // If new image uploaded
-  if (req.file && req.file.buffer) {
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: "products" },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(req.file.buffer);
-    });
-
-    imageUrl = uploadResult.secure_url;
-  }
-
-  // Safe updates
-  if (req.body.name) product.name = req.body.name;
-  if (req.body.category) product.category = req.body.category;
-  if (req.body.description !== undefined)
-    product.description = req.body.description;
-
-  if (req.body.price !== undefined && req.body.price !== "") {
-    product.price = Number(req.body.price);
-  }
-
-  if (req.body.stock !== undefined && req.body.stock !== "") {
-    product.stock = Number(req.body.stock);
-  }
-
-  product.image = imageUrl;
-
-  const updatedProduct = await product.save();
-
-  res.json(updatedProduct);
 });
 
 /* ================= DELETE ================= */
