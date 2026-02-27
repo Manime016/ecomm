@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../styles/Search.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -8,6 +9,7 @@ const PRODUCT_API = `${BASE_URL}/api/products`;
 const CART_API = `${BASE_URL}/api/cart`;
 
 function Search() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -36,7 +38,6 @@ function Search() {
     }
   };
 
-  // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
     try {
       const res = await axios.get(PRODUCT_API);
@@ -47,7 +48,6 @@ function Search() {
     }
   };
 
-  // ================= FETCH CART =================
   const fetchCart = async () => {
     try {
       const res = await authAxios.get(CART_API);
@@ -57,7 +57,6 @@ function Search() {
     }
   };
 
-  // ================= SEARCH =================
   const handleSearch = async (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -117,11 +116,11 @@ function Search() {
 
   return (
     <div className="search-page">
-      <h2>Search Products</h2>
+      <h2>{t("search.title")}</h2>
 
       <input
         type="text"
-        placeholder="Search by name or category..."
+        placeholder={t("search.placeholder")}
         value={query}
         onChange={handleSearch}
         className="search-input"
@@ -143,8 +142,12 @@ function Search() {
             {expandedId === product._id && (
               <div className="extra-info">
                 <p>{product.description}</p>
-                <p>Category: {product.category}</p>
-                <p>Stock: {product.stock}</p>
+                <p>
+                  {t("search.category")}: {product.category}
+                </p>
+                <p>
+                  {t("search.stock")}: {product.stock}
+                </p>
               </div>
             )}
 
@@ -156,7 +159,7 @@ function Search() {
                   removeFromCart(product._id);
                 }}
               >
-                Remove
+                {t("search.remove")}
               </button>
             ) : (
               <button
@@ -166,7 +169,7 @@ function Search() {
                   addToCart(product._id);
                 }}
               >
-                Add to Cart
+                {t("search.addToCart")}
               </button>
             )}
           </div>

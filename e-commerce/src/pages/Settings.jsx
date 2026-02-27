@@ -1,20 +1,19 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import "../styles/Settings.css";
 
 function Settings() {
+  const { t, i18n } = useTranslation();
+
   const [showChat, setShowChat] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
-    { sender: "admin", text: "Hello! How can I help you?" }
+    { sender: "admin", text: t("settings.chatGreeting") }
   ]);
 
   const [activeTheme, setActiveTheme] = useState("light");
 
   const chatEndRef = useRef(null);
-
-  /* ============================= */
-  /* THEMES LIST */
-  /* ============================= */
 
   const themes = [
     "light",
@@ -45,20 +44,6 @@ function Settings() {
   }, [messages]);
 
   /* ============================= */
-  /* ESC TO CLOSE CHAT */
-  /* ============================= */
-
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        setShowChat(false);
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
-
-  /* ============================= */
   /* APPLY THEME */
   /* ============================= */
 
@@ -67,6 +52,15 @@ function Settings() {
     document.body.classList.add(theme);
     localStorage.setItem("theme", theme);
     setActiveTheme(theme);
+  };
+
+  /* ============================= */
+  /* CHANGE LANGUAGE */
+  /* ============================= */
+
+  const handleLanguageChange = (lang) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("i18nextLng", lang);
   };
 
   /* ============================= */
@@ -88,7 +82,7 @@ function Settings() {
         ...prev,
         {
           sender: "admin",
-          text: "Thanks! Our team will get back to you."
+          text: t("settings.chatReply")
         }
       ]);
     }, 1000);
@@ -96,31 +90,46 @@ function Settings() {
 
   return (
     <div className="settings-container">
-      <h2>Settings</h2>
+
+      <h2>{t("settings.title")}</h2>
 
       {/* ABOUT */}
       <div className="settings-card">
-        <h3>About</h3>
-        <p>
-          Shop111 is your complete e-commerce platform.
-          Fast. Secure. Reliable.
-        </p>
+        <h3>{t("settings.about")}</h3>
+        <p>{t("settings.aboutText")}</p>
+      </div>
+
+      {/* LANGUAGE SECTION */}
+      <div className="settings-card">
+        <h3>{t("settings.language")}</h3>
+
+        <select
+          className="language-dropdown"
+          value={i18n.language}
+          onChange={(e) => handleLanguageChange(e.target.value)}
+        >
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="kn">Kannada</option>
+          <option value="ta">Tamil</option>
+          <option value="te">Telugu</option>
+        </select>
       </div>
 
       {/* CHAT SUPPORT */}
       <div className="settings-card">
-        <h3>Chat Support</h3>
+        <h3>{t("settings.chatSupport")}</h3>
         <button
           className="settings-btn"
           onClick={() => setShowChat(true)}
         >
-          Contact Support
+          {t("settings.contactSupport")}
         </button>
       </div>
 
       {/* THEME SECTION */}
       <div className="settings-card">
-        <h3>Theme</h3>
+        <h3>{t("settings.theme")}</h3>
 
         <div className="theme-options">
           {themes.map((theme) => (
@@ -147,7 +156,7 @@ function Settings() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="chat-header">
-              <h4>Live Support</h4>
+              <h4>{t("settings.liveSupport")}</h4>
               <button onClick={() => setShowChat(false)}>X</button>
             </div>
 
@@ -166,18 +175,21 @@ function Settings() {
             <div className="chat-input">
               <input
                 type="text"
-                placeholder="Type your message..."
+                placeholder={t("settings.typeMessage")}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={(e) =>
                   e.key === "Enter" && sendMessage()
                 }
               />
-              <button onClick={sendMessage}>Send</button>
+              <button onClick={sendMessage}>
+                {t("settings.send")}
+              </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

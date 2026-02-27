@@ -244,3 +244,33 @@
     width: 100%;
   }
 }
+/* ============================= */
+/* LANGUAGE DROPDOWN */
+/* ============================= */
+
+.language-dropdown {
+  width: 200px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.language-dropdown:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Make it responsive */
+@media (max-width: 480px) {
+  .language-dropdown {
+    width: 100%;
+  }
+}
+.settings-card select {
+  margin-top: 10px;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../styles/Dashboard.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -11,6 +12,7 @@ const FALLBACK_IMAGE =
   "https://static.vecteezy.com/system/resources/thumbnails/029/923/432/small/photo-coming-soon-picture-frame-stock-illustration-vector.jpg";
 
 function Dashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -114,7 +116,9 @@ function Dashboard() {
         }
       >
         {item.stock === 0 && (
-          <div className="out-of-stock-overlay">Out of Stock</div>
+          <div className="out-of-stock-overlay">
+            {t("dashboard.outOfStock")}
+          </div>
         )}
 
         <img
@@ -132,7 +136,9 @@ function Dashboard() {
         {isExpanded && (
           <div className="extra-info">
             <p>{item.description}</p>
-            <p>Stock: {item.stock}</p>
+            <p>
+              {t("dashboard.stock")}: {item.stock}
+            </p>
           </div>
         )}
 
@@ -145,7 +151,7 @@ function Dashboard() {
                 addToCart(item._id);
               }}
             >
-              Add to Cart
+              {t("dashboard.addToCart")}
             </button>
           ) : (
             <div
@@ -173,7 +179,7 @@ function Dashboard() {
             handleBuyNow(item._id);
           }}
         >
-          Buy Now
+          {t("dashboard.buyNow")}
         </button>
       </div>
     );
@@ -218,7 +224,9 @@ function Dashboard() {
                     }))
                   }
                 >
-                  {isExpandedCat ? "Show Less" : "Show More"}
+                  {isExpandedCat
+                    ? t("dashboard.showLess")
+                    : t("dashboard.showMore")}
                 </button>
               </div>
             )}

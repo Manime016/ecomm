@@ -1,13 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../styles/Profile.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
-const ORDER_API = `${BASE_URL}/api/orders`;
-const USER_API = `${BASE_URL}/api/users`;
 
 function Profile() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -61,14 +61,10 @@ function Profile() {
       const res = await authAxios.get("/api/orders");
       setOrders(res.data);
     } catch (err) {
-      handleAuthError(err);
-    }
-  };
-
-  const handleAuthError = (err) => {
-    if (err.response?.status === 401) {
-      localStorage.clear();
-      navigate("/login");
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      }
     }
   };
 
@@ -77,7 +73,7 @@ function Profile() {
       await authAxios.put(`/api/orders/${id}/cancel`);
       fetchOrders();
     } catch (err) {
-      alert(err.response?.data?.message || "Cannot cancel");
+      alert(err.response?.data?.message || t("profile.cannotCancel"));
     }
   };
 
@@ -93,7 +89,7 @@ function Profile() {
 
   const sendOtp = async () => {
     if (resendCount >= 3) {
-      alert("Maximum resend attempts reached");
+      alert(t("profile.maxOtp"));
       return;
     }
 
@@ -101,9 +97,9 @@ function Profile() {
       await authAxios.post("/api/users/send-otp");
       setOtpTimer(60);
       setResendCount((prev) => prev + 1);
-      alert("OTP sent successfully");
+      alert(t("profile.otpSent"));
     } catch (err) {
-      alert(err.response?.data?.message || "Unauthorized");
+      alert(err.response?.data?.message || t("profile.unauthorized"));
     }
   };
 
@@ -112,7 +108,7 @@ function Profile() {
       passwordData.newPassword &&
       passwordData.newPassword !== passwordData.confirmPassword
     ) {
-      alert("Passwords do not match");
+      alert(t("profile.passwordMismatch"));
       return;
     }
 
@@ -128,11 +124,11 @@ function Profile() {
       localStorage.setItem("email", formData.email);
       localStorage.setItem("phone", formData.phone);
 
-      alert("Profile updated successfully");
+      alert(t("profile.updated"));
       setShowEdit(false);
-      fetchOrders(); // instead of reload
+      fetchOrders();
     } catch (err) {
-      alert(err.response?.data?.message || "Update failed");
+      alert(err.response?.data?.message || t("profile.updateFailed"));
     }
   };
 
@@ -142,15 +138,15 @@ function Profile() {
       <div className="profile-card">
         <div>
           <h2>{formData.name}</h2>
-          <p>Welcome back 👋</p>
+          <p>{t("profile.welcome")}</p>
         </div>
 
         <div className="profile-actions">
           <button onClick={() => setShowEdit(true)}>
-            Edit Profile
+            {t("profile.edit")}
           </button>
           <button onClick={logout} className="logout-btn">
-            Logout
+            {t("profile.logout")}
           </button>
         </div>
       </div>
@@ -158,28 +154,27 @@ function Profile() {
       <div className="profile-stats">
         <div className="stat-box">
           <h3>{orders.length}</h3>
-          <p>Total Orders</p>
+          <p>{t("profile.totalOrders")}</p>
         </div>
         <div className="stat-box">
           <h3>₹{totalSpent}</h3>
-          <p>Total Spent</p>
+          <p>{t("profile.totalSpent")}</p>
         </div>
         <div className="stat-box">
           <h3>
             {orders.filter((o) => o.orderStatus === "Delivered").length}
           </h3>
-          <p>Delivered</p>
+          <p>{t("profile.delivered")}</p>
         </div>
       </div>
 
-      <h3 className="section-title">My Orders</h3>
+      <h3 className="section-title">{t("profile.myOrders")}</h3>
 
       {orders.length === 0 ? (
-        <p>No orders yet</p>
+        <p>{t("profile.noOrders")}</p>
       ) : (
         orders.map((order) => (
           <div key={order._id} className="order-card">
-
             <div
               className="order-header"
               onClick={() =>
@@ -189,11 +184,11 @@ function Profile() {
               }
             >
               <div>
-                <p><strong>Order ID:</strong> {order._id}</p>
-                <p>Total: ₹{order.totalAmount}</p>
+                <p><strong>{t("profile.orderId")}:</strong> {order._id}</p>
+                <p>{t("profile.total")}: ₹{order.totalAmount}</p>
               </div>
 
-              <span className={`status ${order.orderStatus.toLowerCase().replace(/\s/g, "-")}`}>
+              <span className={`status`}>
                 {order.orderStatus}
               </span>
             </div>
@@ -205,115 +200,29 @@ function Profile() {
                     <img src={item.product.image} alt={item.product.name} />
                     <div>
                       <p>{item.product.name}</p>
-                      <p>Qty: {item.quantity}</p>
+                      <p>{t("profile.qty")}: {item.quantity}</p>
                     </div>
                   </div>
                 ))}
 
-                <p><strong>Tracking ID:</strong> {order.trackingId}</p>
-                <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
-                <p><strong>Payment Status:</strong> {order.paymentStatus || "Pending"}</p>
-                {order.paymentId && <p><strong>Payment ID:</strong> {order.paymentId}</p>}
-                <p><strong>Address:</strong> {order.address}</p>
+                <p><strong>{t("profile.tracking")}:</strong> {order.trackingId}</p>
+                <p><strong>{t("profile.paymentMethod")}:</strong> {order.paymentMethod}</p>
+                <p><strong>{t("profile.paymentStatus")}:</strong> {order.paymentStatus || t("profile.pending")}</p>
+                {order.paymentId && <p><strong>{t("profile.paymentId")}:</strong> {order.paymentId}</p>}
+                <p><strong>{t("profile.address")}:</strong> {order.address}</p>
 
                 {order.orderStatus === "Processing" && (
                   <button
                     className="cancel-btn"
                     onClick={() => cancelOrder(order._id)}
                   >
-                    Cancel Order
+                    {t("profile.cancelOrder")}
                   </button>
                 )}
               </div>
             )}
           </div>
         ))
-      )}
-
-      {showEdit && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Edit Profile</h2>
-
-            <input
-              type="text"
-              placeholder="Name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-
-            <input
-              type="text"
-              placeholder="Phone"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
-            />
-
-            <input
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={(e) => {
-                setFormData({ ...formData, email: e.target.value });
-                setEmailChanged(true);
-              }}
-            />
-
-            {emailChanged && (
-              <>
-                <button onClick={sendOtp} disabled={otpTimer > 0}>
-                  {otpTimer > 0 ? `Resend in ${otpTimer}s` : "Send OTP"}
-                </button>
-
-                <input
-                  type="text"
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-              </>
-            )}
-
-            <hr />
-            <h3>Change Password</h3>
-
-            <input
-              type="password"
-              placeholder="Old Password"
-              value={passwordData.oldPassword}
-              onChange={(e) =>
-                setPasswordData({ ...passwordData, oldPassword: e.target.value })
-              }
-            />
-
-            <input
-              type="password"
-              placeholder="New Password"
-              value={passwordData.newPassword}
-              onChange={(e) =>
-                setPasswordData({ ...passwordData, newPassword: e.target.value })
-              }
-            />
-
-            <input
-              type="password"
-              placeholder="Confirm New Password"
-              value={passwordData.confirmPassword}
-              onChange={(e) =>
-                setPasswordData({ ...passwordData, confirmPassword: e.target.value })
-              }
-            />
-
-            <div className="modal-actions">
-              <button onClick={updateProfile}>Save</button>
-              <button onClick={() => setShowEdit(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
       )}
 
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../styles/Cart.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -8,6 +9,7 @@ const CART_API = `${BASE_URL}/api/cart`;
 const ORDER_API = `${BASE_URL}/api/orders`;
 
 function Cart() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [cart, setCart] = useState([]);
@@ -30,9 +32,7 @@ function Cart() {
 
   const authAxios = useMemo(() => {
     return axios.create({
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
   }, [token]);
 
@@ -93,19 +93,18 @@ function Cart() {
       !address.state ||
       !address.pincode
     ) {
-      alert("Please fill all required address fields");
+      alert(t("cart.fillAddress"));
       return;
     }
 
     if (!/^[0-9]{6}$/.test(address.pincode)) {
-      alert("Enter valid 6-digit pincode");
+      alert(t("cart.invalidPincode"));
       return;
     }
 
     try {
       setLoading(true);
 
-      /* ================= COD ================= */
       if (paymentMethod === "COD") {
         await authAxios.post(ORDER_API, {
           items: cart,
@@ -119,59 +118,15 @@ function Cart() {
 
         await authAxios.delete(`${CART_API}/clear`);
 
-        alert("Order Placed Successfully!");
+        alert(t("cart.orderPlaced"));
         navigate("/profile");
         return;
       }
 
-      /* ================= ONLINE (UPI / CARD via Razorpay) ================= */
-
-      const { data } = await authAxios.post(
-        `${ORDER_API}/razorpay`,
-        { amount: total }
-      );
-
-      if (!window.Razorpay) {
-        alert("Payment SDK not loaded. Please refresh.");
-        return;
-      }
-
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY,
-        amount: data.amount,
-        currency: data.currency,
-        order_id: data.id,
-        name: "SHOPP111",
-        description: "Order Payment",
-
-        handler: async function (response) {
-          await authAxios.post(`${ORDER_API}/verify`, response);
-
-          await authAxios.post(ORDER_API, {
-            items: cart,
-            subtotal,
-            discount,
-            deliveryCharge,
-            totalAmount: total,
-            paymentMethod,
-            address,
-          });
-
-          await authAxios.delete(`${CART_API}/clear`);
-
-          alert("Payment Successful!");
-          navigate("/profile");
-        },
-
-        theme: { color: "#4e73df" },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-
+      alert(t("cart.paymentFailed"));
     } catch (err) {
       console.error(err);
-      alert("Payment Failed");
+      alert(t("cart.paymentFailed"));
     } finally {
       setLoading(false);
     }
@@ -179,11 +134,11 @@ function Cart() {
 
   return (
     <div className="cart-container">
-      <h2>My Cart</h2>
+      <h2>{t("cart.title")}</h2>
 
       {cart.length === 0 ? (
         <div className="empty-cart">
-          <h3>Your cart is empty</h3>
+          <h3>{t("cart.empty")}</h3>
         </div>
       ) : (
         <div className="cart-layout">
@@ -202,25 +157,29 @@ function Cart() {
                 </div>
                 <div className="item-total">
                   ₹{item.product.price * item.quantity}
-                  <button onClick={() => removeItem(item.product._id)}>Remove</button>
+                  <button onClick={() => removeItem(item.product._id)}>
+                    {t("cart.remove")}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="cart-summary">
-            <h3>Order Summary</h3>
-            <p>Subtotal: ₹{subtotal}</p>
-            <p>Delivery: ₹{deliveryCharge}</p>
+            <h3>{t("cart.orderSummary")}</h3>
+            <p>{t("cart.subtotal")}: ₹{subtotal}</p>
+            <p>{t("cart.delivery")}: ₹{deliveryCharge}</p>
             <hr />
-            <h2>Total: ₹{total}</h2>
+            <h2>{t("cart.total")}: ₹{total}</h2>
 
             <button
               className="checkout-btn"
               disabled={loading}
               onClick={() => setShowCheckoutModal(true)}
             >
-              {loading ? "Processing..." : "Proceed to Checkout"}
+              {loading
+                ? t("cart.processing")
+                : t("cart.checkout")}
             </button>
           </div>
         </div>
@@ -229,61 +188,36 @@ function Cart() {
       {showCheckoutModal && (
         <div className="modal-overlay">
           <div className="modal">
+            <h2>{t("cart.checkout")}</h2>
 
-            <h2>Checkout</h2>
+            <h3>{t("cart.deliveryAddress")}</h3>
 
-            <h3>Delivery Address</h3>
+            <input name="houseNumber" placeholder={t("cart.houseNumber")} onChange={handleAddressChange} />
+            <input name="locality" placeholder={t("cart.locality")} onChange={handleAddressChange} />
+            <input name="landmark" placeholder={t("cart.landmark")} onChange={handleAddressChange} />
+            <input name="district" placeholder={t("cart.district")} onChange={handleAddressChange} />
+            <input name="state" placeholder={t("cart.state")} onChange={handleAddressChange} />
+            <input name="pincode" placeholder={t("cart.pincode")} onChange={handleAddressChange} />
 
-            <input name="houseNumber" placeholder="House / Flat No" onChange={handleAddressChange} />
-            <input name="locality" placeholder="Locality" onChange={handleAddressChange} />
-            <input name="landmark" placeholder="Landmark" onChange={handleAddressChange} />
-            <input name="district" placeholder="District" onChange={handleAddressChange} />
-            <input name="state" placeholder="State" onChange={handleAddressChange} />
-            <input name="pincode" placeholder="Pincode" onChange={handleAddressChange} />
-
-            <h3>Payment Method</h3>
+            <h3>{t("cart.paymentMethod")}</h3>
 
             <label>
-              <input
-                type="radio"
-                value="COD"
+              <input type="radio" value="COD"
                 checked={paymentMethod === "COD"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
-              Cash on Delivery
-            </label>
-
-            <br />
-
-            <label>
-              <input
-                type="radio"
-                value="UPI"
-                checked={paymentMethod === "UPI"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              UPI
-            </label>
-
-            <br />
-
-            <label>
-              <input
-                type="radio"
-                value="CARD"
-                checked={paymentMethod === "CARD"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              Credit / Debit Card
+              {t("cart.cod")}
             </label>
 
             <div className="modal-actions">
               <button onClick={handleCheckout} disabled={loading}>
-                {loading ? "Processing..." : "Place Order"}
+                {loading
+                  ? t("cart.processing")
+                  : t("cart.placeOrder")}
               </button>
 
               <button onClick={() => setShowCheckoutModal(false)}>
-                Cancel
+                {t("cart.cancel")}
               </button>
             </div>
 

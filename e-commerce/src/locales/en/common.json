@@ -1,0 +1,99 @@
+{
+  "navbar": {
+    "home": "Home",
+    "search": "Search",
+    "cart": "Cart",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "user": "User"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "about": "About",
+    "aboutText": "Shop111 is your complete e-commerce platform. Fast. Secure. Reliable.",
+    "language": "Language",
+    "chatSupport": "Chat Support",
+    "contactSupport": "Contact Support",
+    "theme": "Theme",
+    "liveSupport": "Live Support",
+    "typeMessage": "Type your message...",
+    "send": "Send",
+    "chatGreeting": "Hello! How can I help you?",
+    "chatReply": "Thanks! Our team will get back to you."
+  },
+
+  "dashboard": {
+    "outOfStock": "Out of Stock",
+    "stock": "Stock",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "showMore": "Show More",
+    "showLess": "Show Less"
+  },
+
+  "cart": {
+    "title": "My Cart",
+    "empty": "Your cart is empty",
+    "remove": "Remove",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "processing": "Processing...",
+    "deliveryAddress": "Delivery Address",
+    "houseNumber": "House / Flat No",
+    "locality": "Locality",
+    "landmark": "Landmark",
+    "district": "District",
+    "state": "State",
+    "pincode": "Pincode",
+    "paymentMethod": "Payment Method",
+    "cod": "Cash on Delivery",
+    "placeOrder": "Place Order",
+    "cancel": "Cancel",
+    "fillAddress": "Please fill all required address fields",
+    "invalidPincode": "Enter valid 6-digit pincode",
+    "orderPlaced": "Order Placed Successfully!",
+    "paymentFailed": "Payment Failed"
+  },
+
+  "profile": {
+    "welcome": "Welcome back 👋",
+    "edit": "Edit Profile",
+    "logout": "Logout",
+    "totalOrders": "Total Orders",
+    "totalSpent": "Total Spent",
+    "delivered": "Delivered",
+    "myOrders": "My Orders",
+    "noOrders": "No orders yet",
+    "orderId": "Order ID",
+    "total": "Total",
+    "qty": "Qty",
+    "tracking": "Tracking ID",
+    "paymentMethod": "Payment Method",
+    "paymentStatus": "Payment Status",
+    "paymentId": "Payment ID",
+    "address": "Address",
+    "cancelOrder": "Cancel Order",
+    "pending": "Pending",
+    "cannotCancel": "Cannot cancel",
+    "maxOtp": "Maximum resend attempts reached",
+    "otpSent": "OTP sent successfully",
+    "unauthorized": "Unauthorized",
+    "passwordMismatch": "Passwords do not match",
+    "updated": "Profile updated successfully",
+    "updateFailed": "Update failed"
+  },
+
+  "search": {
+    "title": "Search Products",
+    "placeholder": "Search by name or category...",
+    "category": "Category",
+    "stock": "Stock",
+    "remove": "Remove",
+    "addToCart": "Add to Cart"
+  }
+}

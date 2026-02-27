@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   FiHome,
   FiSearch,
@@ -11,6 +12,8 @@ import {
 import "../styles/Dashboard.css";
 
 function Sidebar() {
+  const { t } = useTranslation();
+
   return (
     <div className="sidebar">
 
@@ -18,29 +21,29 @@ function Sidebar() {
 
       <nav className="sidebar-menu">
 
-        <NavLink to="/Home" className="sidebar-link">
+        <NavLink to="/dashboard" className="sidebar-link">
           <FiHome className="icon" />
-          <span>Home</span>
+          <span>{t("navbar.home")}</span>
         </NavLink>
 
         <NavLink to="/search" className="sidebar-link">
           <FiSearch className="icon" />
-          <span>Search</span>
+          <span>{t("navbar.search")}</span>
         </NavLink>
 
         <NavLink to="/cart" className="sidebar-link">
           <FiShoppingCart className="icon" />
-          <span>Cart</span>
+          <span>{t("navbar.cart")}</span>
         </NavLink>
 
-        <NavLink to="/Profile" className="sidebar-link">
+        <NavLink to="/profile" className="sidebar-link">
           <FiUser className="icon" />
-          <span>Profile</span>
+          <span>{t("navbar.profile")}</span>
         </NavLink>
 
         <NavLink to="/settings" className="sidebar-link">
           <FiSettings className="icon" />
-          <span>Settings</span>
+          <span>{t("navbar.settings")}</span>
         </NavLink>
 
         <button
@@ -51,7 +54,7 @@ function Sidebar() {
           }}
         >
           <FiLogOut className="icon" />
-          Logout
+          {t("navbar.logout")}
         </button>
 
       </nav>
