@@ -175,6 +175,7 @@ function Profile() {
       ) : (
         orders.map((order) => (
           <div key={order._id} className="order-card">
+
             <div
               className="order-header"
               onClick={() =>
@@ -188,9 +189,7 @@ function Profile() {
                 <p>{t("profile.total")}: ₹{order.totalAmount}</p>
               </div>
 
-              <span className={`status`}>
-                {order.orderStatus}
-              </span>
+              <span className="status">{order.orderStatus}</span>
             </div>
 
             {expandedOrder === order._id && (
@@ -223,6 +222,98 @@ function Profile() {
             )}
           </div>
         ))
+      )}
+
+      {showEdit && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>{t("profile.edit")}</h2>
+
+            <input
+              type="text"
+              placeholder={t("profile.name")}
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+            />
+
+            <input
+              type="text"
+              placeholder={t("profile.phone")}
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+            />
+
+            <input
+              type="email"
+              placeholder={t("profile.email")}
+              value={formData.email}
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                setEmailChanged(true);
+              }}
+            />
+
+            {emailChanged && (
+              <>
+                <button onClick={sendOtp} disabled={otpTimer > 0}>
+                  {otpTimer > 0
+                    ? `${t("profile.resendIn")} ${otpTimer}s`
+                    : t("profile.sendOtp")}
+                </button>
+
+                <input
+                  type="text"
+                  placeholder={t("profile.enterOtp")}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+              </>
+            )}
+
+            <hr />
+            <h3>{t("profile.changePassword")}</h3>
+
+            <input
+              type="password"
+              placeholder={t("profile.oldPassword")}
+              value={passwordData.oldPassword}
+              onChange={(e) =>
+                setPasswordData({ ...passwordData, oldPassword: e.target.value })
+              }
+            />
+
+            <input
+              type="password"
+              placeholder={t("profile.newPassword")}
+              value={passwordData.newPassword}
+              onChange={(e) =>
+                setPasswordData({ ...passwordData, newPassword: e.target.value })
+              }
+            />
+
+            <input
+              type="password"
+              placeholder={t("profile.confirmPassword")}
+              value={passwordData.confirmPassword}
+              onChange={(e) =>
+                setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+              }
+            />
+
+            <div className="modal-actions">
+              <button onClick={updateProfile}>
+                {t("profile.save")}
+              </button>
+              <button onClick={() => setShowEdit(false)}>
+                {t("profile.cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

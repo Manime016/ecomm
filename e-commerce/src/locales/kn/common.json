@@ -85,7 +85,19 @@
     "unauthorized": "ಅನಧಿಕೃತ",
     "passwordMismatch": "ಪಾಸ್‌ವರ್ಡ್ ಹೊಂದಿಕೆಯಾಗಿಲ್ಲ",
     "updated": "ಪ್ರೊಫೈಲ್ ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ",
-    "updateFailed": "ನವೀಕರಣ ವಿಫಲವಾಗಿದೆ"
+    "updateFailed": "ನವೀಕರಣ ವಿಫಲವಾಗಿದೆ",
+    "name": "ಹೆಸರು",
+"phone": "ಫೋನ್",
+"email": "ಇಮೇಲ್",
+"sendOtp": "OTP ಕಳುಹಿಸಿ",
+"resendIn": "ಮತ್ತೆ ಕಳುಹಿಸಲು",
+"enterOtp": "OTP ನಮೂದಿಸಿ",
+"changePassword": "ಪಾಸ್‌ವರ್ಡ್ ಬದಲಿಸಿ",
+"oldPassword": "ಹಳೆಯ ಪಾಸ್‌ವರ್ಡ್",
+"newPassword": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್",
+"confirmPassword": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ",
+"save": "ಉಳಿಸಿ",
+"cancel": "ರದ್ದುಮಾಡಿ"
   },
 
   "search": {

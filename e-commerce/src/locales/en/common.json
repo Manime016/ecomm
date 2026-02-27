@@ -85,7 +85,20 @@
     "unauthorized": "Unauthorized",
     "passwordMismatch": "Passwords do not match",
     "updated": "Profile updated successfully",
-    "updateFailed": "Update failed"
+    "updateFailed": "Update failed",
+    "name": "Name",
+"phone": "Phone",
+"email": "Email",
+"sendOtp": "Send OTP",
+"resendIn": "Resend in",
+"enterOtp": "Enter OTP",
+"changePassword": "Change Password",
+"oldPassword": "Old Password",
+"newPassword": "New Password",
+"confirmPassword": "Confirm New Password",
+"save": "Save",
+"cancel": "Cancel"
+    
   },
 
   "search": {

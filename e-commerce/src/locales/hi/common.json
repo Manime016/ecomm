@@ -85,7 +85,19 @@
     "unauthorized": "अनधिकृत",
     "passwordMismatch": "पासवर्ड मेल नहीं खाते",
     "updated": "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई",
-    "updateFailed": "अपडेट विफल"
+    "updateFailed": "अपडेट विफल",
+    "name": "नाम",
+"phone": "फोन",
+"email": "ईमेल",
+"sendOtp": "OTP भेजें",
+"resendIn": "फिर से भेजें",
+"enterOtp": "OTP दर्ज करें",
+"changePassword": "पासवर्ड बदलें",
+"oldPassword": "पुराना पासवर्ड",
+"newPassword": "नया पासवर्ड",
+"confirmPassword": "नए पासवर्ड की पुष्टि करें",
+"save": "सहेजें",
+"cancel": "रद्द करें"
   },
 
   "search": {
