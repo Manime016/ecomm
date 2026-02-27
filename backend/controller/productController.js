@@ -1,9 +1,28 @@
 import Product from "../models/product.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import cloudinary from "../config/cloudinary.js";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
-  const { name, price, category, description, stock, image } = req.body;
+  const { name, price, category, description, stock } = req.body;
+
+  let imageUrl = null;
+
+  if (req.file) {
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "products" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+
+      stream.end(req.file.buffer);
+    });
+
+    imageUrl = uploadResult.secure_url;
+  }
 
   const product = await Product.create({
     name,
@@ -11,7 +30,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     category,
     description,
     stock,
-    image: image || null,
+    image: imageUrl,
   });
 
   res.status(201).json(product);
@@ -44,14 +63,33 @@ export const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
+  let imageUrl = product.image;
+
+  if (req.file) {
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "products" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+
+      stream.end(req.file.buffer);
+    });
+
+    imageUrl = uploadResult.secure_url;
+  }
+
   product.name = req.body.name ?? product.name;
   product.price = req.body.price ?? product.price;
   product.category = req.body.category ?? product.category;
   product.description = req.body.description ?? product.description;
   product.stock = req.body.stock ?? product.stock;
-  product.image = req.body.image ?? product.image;
+  product.image = imageUrl;
 
   const updatedProduct = await product.save();
+
   res.json(updatedProduct);
 });
 

@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
   createProduct,
   getAllProducts,
@@ -10,14 +11,23 @@ import {
 
 const router = express.Router();
 
+/* ================= MULTER SETUP ================= */
+
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+});
+
 /* ================= PUBLIC ================= */
 
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
+/* ================= ADMIN ================= */
 
+router.post("/", upload.single("image"), createProduct);
+router.put("/:id", upload.single("image"), updateProduct);
 router.delete("/:id", deleteProduct);
 
 /* ================= USER ================= */
