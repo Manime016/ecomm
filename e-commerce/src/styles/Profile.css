@@ -276,3 +276,23 @@
     width: 100%;
   }
 }
+/* SEND OTP BUTTON */
+.modal button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: 0.2s ease;
+}
+
+.modal button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.modal button:hover:not(:disabled) {
+  opacity: 0.9;
+}
