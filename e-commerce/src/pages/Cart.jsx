@@ -105,6 +105,7 @@ function Cart() {
     try {
       setLoading(true);
 
+      /* ================= COD ================= */
       if (paymentMethod === "COD") {
         await authAxios.post(ORDER_API, {
           items: cart,
@@ -123,7 +124,51 @@ function Cart() {
         return;
       }
 
-      alert(t("cart.paymentFailed"));
+      /* ================= RAZORPAY ================= */
+
+      const { data } = await authAxios.post(
+        `${ORDER_API}/razorpay`,
+        { amount: total }
+      );
+
+      if (!window.Razorpay) {
+        alert("Payment SDK not loaded");
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.id,
+        name: "SHOPP111",
+        description: "Order Payment",
+
+        handler: async function (response) {
+          await authAxios.post(`${ORDER_API}/verify`, response);
+
+          await authAxios.post(ORDER_API, {
+            items: cart,
+            subtotal,
+            discount,
+            deliveryCharge,
+            totalAmount: total,
+            paymentMethod,
+            address,
+          });
+
+          await authAxios.delete(`${CART_API}/clear`);
+
+          alert(t("cart.orderPlaced"));
+          navigate("/profile");
+        },
+
+        theme: { color: "#4e73df" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
     } catch (err) {
       console.error(err);
       alert(t("cart.paymentFailed"));
@@ -177,9 +222,7 @@ function Cart() {
               disabled={loading}
               onClick={() => setShowCheckoutModal(true)}
             >
-              {loading
-                ? t("cart.processing")
-                : t("cart.checkout")}
+              {loading ? t("cart.processing") : t("cart.checkout")}
             </button>
           </div>
         </div>
@@ -202,18 +245,30 @@ function Cart() {
             <h3>{t("cart.paymentMethod")}</h3>
 
             <label>
-              <input type="radio" value="COD"
+              <input
+                type="radio"
+                value="COD"
                 checked={paymentMethod === "COD"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
               {t("cart.cod")}
             </label>
 
+            <br />
+
+            <label>
+              <input
+                type="radio"
+                value="ONLINE"
+                checked={paymentMethod === "ONLINE"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              UPI / Card
+            </label>
+
             <div className="modal-actions">
               <button onClick={handleCheckout} disabled={loading}>
-                {loading
-                  ? t("cart.processing")
-                  : t("cart.placeOrder")}
+                {loading ? t("cart.processing") : t("cart.placeOrder")}
               </button>
 
               <button onClick={() => setShowCheckoutModal(false)}>
