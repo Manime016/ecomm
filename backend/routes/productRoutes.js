@@ -1,6 +1,5 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
 import {
   createProduct,
   getAllProducts,
@@ -12,29 +11,27 @@ import {
 
 const router = express.Router();
 
-/* ================= MULTER LOCAL STORAGE ================= */
+/* ================= MULTER SETUP ================= */
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const uniqueName =
-      Date.now() + "-" + file.originalname.replace(/\s+/g, "-");
-    cb(null, uniqueName);
-  },
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-/* ================= ROUTES ================= */
+/* ================= PUBLIC ================= */
 
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
+/* ================= ADMIN ================= */
+
+// CREATE still uses multer
 router.post("/", upload.single("image"), createProduct);
-router.put("/:id", upload.single("image"), updateProduct);
+
+// UPDATE does NOT use multer (for debugging)
+router.put("/:id", updateProduct);
+
 router.delete("/:id", deleteProduct);
+
+/* ================= USER ================= */
 
 router.post("/recent-search", saveRecentSearch);
 
