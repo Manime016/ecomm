@@ -1,6 +1,5 @@
 import Product from "../models/product.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import cloudinary from "../config/cloudinary.js";
 
 /* ================= CREATE ================= */
 export const createProduct = asyncHandler(async (req, res) => {
@@ -10,13 +9,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     let imageUrl = null;
 
     if (req.file) {
-      const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-
-      const uploadResult = await cloudinary.uploader.upload(base64, {
-        folder: "products",
-      });
-
-      imageUrl = uploadResult.secure_url;
+      imageUrl = `/uploads/${req.file.filename}`;
     }
 
     const product = await Product.create({
@@ -62,20 +55,14 @@ export const updateProduct = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    let imageUrl = product.image;
+    // JUST TEST FILE ARRIVAL
+    console.log("REQ FILE:", req.file);
 
-    // If new image selected
+    // Fake image update
     if (req.file) {
-      const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-
-      const uploadResult = await cloudinary.uploader.upload(base64, {
-        folder: "products",
-      });
-
-      imageUrl = uploadResult.secure_url;
+      product.image = "https://via.placeholder.com/300x300?text=Updated";
     }
 
-    // Safe field updates
     if (req.body.name) product.name = req.body.name;
     if (req.body.category) product.category = req.body.category;
     if (req.body.description !== undefined)
@@ -88,8 +75,6 @@ export const updateProduct = asyncHandler(async (req, res) => {
     if (req.body.stock !== undefined && req.body.stock !== "") {
       product.stock = Number(req.body.stock);
     }
-
-    product.image = imageUrl;
 
     const updatedProduct = await product.save();
 

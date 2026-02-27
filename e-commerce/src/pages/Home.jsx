@@ -7,6 +7,9 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 const PRODUCT_API = `${BASE_URL}/api/products`;
 const CART_API = `${BASE_URL}/api/cart`;
 
+const FALLBACK_IMAGE =
+  "https://static.vecteezy.com/system/resources/thumbnails/029/923/432/small/photo-coming-soon-picture-frame-stock-illustration-vector.jpg";
+
 function Dashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -114,7 +117,14 @@ function Dashboard() {
           <div className="out-of-stock-overlay">Out of Stock</div>
         )}
 
-        <img src={item.image} alt={item.name} />
+        <img
+          src={item.image || FALLBACK_IMAGE}
+          alt={item.name}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = FALLBACK_IMAGE;
+          }}
+        />
 
         <h4>{item.name}</h4>
         <p className="price">₹{item.price}</p>
