@@ -63,9 +63,11 @@ export const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
+  // Keep existing image by default
   let imageUrl = product.image;
 
-  if (req.file) {
+  // If new image is uploaded, replace it
+  if (req.file && req.file.buffer) {
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: "products" },
@@ -81,11 +83,27 @@ export const updateProduct = asyncHandler(async (req, res) => {
     imageUrl = uploadResult.secure_url;
   }
 
-  product.name = req.body.name ?? product.name;
-  product.price = req.body.price ?? product.price;
-  product.category = req.body.category ?? product.category;
-  product.description = req.body.description ?? product.description;
-  product.stock = req.body.stock ?? product.stock;
+  // Only update fields if they are sent
+  if (req.body.name !== undefined) {
+    product.name = req.body.name;
+  }
+
+  if (req.body.price !== undefined) {
+    product.price = req.body.price;
+  }
+
+  if (req.body.category !== undefined) {
+    product.category = req.body.category;
+  }
+
+  if (req.body.description !== undefined) {
+    product.description = req.body.description;
+  }
+
+  if (req.body.stock !== undefined) {
+    product.stock = req.body.stock;
+  }
+
   product.image = imageUrl;
 
   const updatedProduct = await product.save();
