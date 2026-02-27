@@ -20,8 +20,7 @@ function MyProducts() {
     price: "",
     category: "",
     description: "",
-    stock: "",
-    image: ""
+    stock: ""
   });
 
   const fetchProducts = async () => {
@@ -37,9 +36,18 @@ function MyProducts() {
     fetchProducts();
   }, []);
 
+  // CLEAN EDIT SETUP (very important)
   const handleEdit = (product) => {
     setEditId(product._id);
-    setFormData(product);
+
+    setFormData({
+      name: product.name || "",
+      price: product.price || "",
+      category: product.category || "",
+      description: product.description || "",
+      stock: product.stock || ""
+    });
+
     setImageFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -70,6 +78,15 @@ function MyProducts() {
 
       setEditId(null);
       setImageFile(null);
+
+      setFormData({
+        name: "",
+        price: "",
+        category: "",
+        description: "",
+        stock: ""
+      });
+
       fetchProducts();
 
     } catch (error) {
@@ -111,24 +128,31 @@ function MyProducts() {
       {editId && (
         <>
           <h2>Edit Product</h2>
+
           <form onSubmit={handleUpdate}>
 
             <input
+              type="text"
               value={formData.name}
               onChange={(e)=>setFormData({...formData,name:e.target.value})}
               placeholder="Product Name"
+              required
             />
 
             <input
+              type="number"
               value={formData.price}
               onChange={(e)=>setFormData({...formData,price:e.target.value})}
               placeholder="Price"
+              required
             />
 
             <input
+              type="text"
               value={formData.category}
               onChange={(e)=>setFormData({...formData,category:e.target.value})}
               placeholder="Category"
+              required
             />
 
             <textarea
@@ -138,9 +162,11 @@ function MyProducts() {
             />
 
             <input
+              type="number"
               value={formData.stock}
               onChange={(e)=>setFormData({...formData,stock:e.target.value})}
               placeholder="Stock"
+              required
             />
 
             <input

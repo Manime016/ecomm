@@ -14,10 +14,7 @@ const router = express.Router();
 /* ================= MULTER SETUP ================= */
 
 const storage = multer.memoryStorage();
-
-const upload = multer({
-  storage,
-});
+const upload = multer({ storage });
 
 /* ================= PUBLIC ================= */
 
@@ -26,8 +23,12 @@ router.get("/:id", getProductById);
 
 /* ================= ADMIN ================= */
 
+// Create needs multer (image upload)
 router.post("/", upload.single("image"), createProduct);
+
+// Update also supports image change
 router.put("/:id", upload.single("image"), updateProduct);
+
 router.delete("/:id", deleteProduct);
 
 /* ================= USER ================= */

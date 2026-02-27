@@ -8,7 +8,7 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   let imageUrl = null;
 
-  if (req.file) {
+  if (req.file && req.file.buffer) {
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: "products" },
@@ -17,7 +17,6 @@ export const createProduct = asyncHandler(async (req, res) => {
           else resolve(result);
         }
       );
-
       stream.end(req.file.buffer);
     });
 
@@ -26,10 +25,10 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   const product = await Product.create({
     name,
-    price,
+    price: Number(price),
     category,
     description,
-    stock,
+    stock: Number(stock),
     image: imageUrl,
   });
 
@@ -63,10 +62,9 @@ export const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
-  // Keep existing image by default
   let imageUrl = product.image;
 
-  // If new image is uploaded, replace it
+  // If new image uploaded
   if (req.file && req.file.buffer) {
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
@@ -76,32 +74,24 @@ export const updateProduct = asyncHandler(async (req, res) => {
           else resolve(result);
         }
       );
-
       stream.end(req.file.buffer);
     });
 
     imageUrl = uploadResult.secure_url;
   }
 
-  // Only update fields if they are sent
-  if (req.body.name !== undefined) {
-    product.name = req.body.name;
-  }
-
-  if (req.body.price !== undefined) {
-    product.price = req.body.price;
-  }
-
-  if (req.body.category !== undefined) {
-    product.category = req.body.category;
-  }
-
-  if (req.body.description !== undefined) {
+  // Safe updates
+  if (req.body.name) product.name = req.body.name;
+  if (req.body.category) product.category = req.body.category;
+  if (req.body.description !== undefined)
     product.description = req.body.description;
+
+  if (req.body.price !== undefined && req.body.price !== "") {
+    product.price = Number(req.body.price);
   }
 
-  if (req.body.stock !== undefined) {
-    product.stock = req.body.stock;
+  if (req.body.stock !== undefined && req.body.stock !== "") {
+    product.stock = Number(req.body.stock);
   }
 
   product.image = imageUrl;
