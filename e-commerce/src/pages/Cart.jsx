@@ -2,11 +2,22 @@ import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import "../styles/Cart.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const CART_API = `${BASE_URL}/api/cart`;
 const ORDER_API = `${BASE_URL}/api/orders`;
+
+const mapContainerStyle = {
+  width: "100%",
+  height: "300px",
+};
+
+const defaultCenter = {
+  lat: 12.9716,
+  lng: 77.5946,
+};
 
 function Cart() {
   const { t } = useTranslation();
@@ -17,6 +28,9 @@ function Cart() {
   const [loading, setLoading] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
+  const [showMap, setShowMap] = useState(false);
+  const [marker, setMarker] = useState(null);
+
   const [address, setAddress] = useState({
     houseNumber: "",
     locality: "",
@@ -24,6 +38,8 @@ function Cart() {
     district: "",
     state: "",
     pincode: "",
+    lat: "",
+    lng: "",
   });
 
   const [paymentMethod, setPaymentMethod] = useState("COD");
@@ -85,6 +101,55 @@ function Cart() {
     setAddress((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* MAP CLICK */
+  const handleMapClick = async (event) => {
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+
+    setMarker({ lat, lng });
+
+    try {
+      const res = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`
+      );
+
+      const result = res.data.results[0];
+
+      let locality = "";
+      let district = "";
+      let state = "";
+      let pincode = "";
+
+      result.address_components.forEach((component) => {
+        const types = component.types;
+
+        if (types.includes("sublocality") || types.includes("locality"))
+          locality = component.long_name;
+
+        if (types.includes("administrative_area_level_2"))
+          district = component.long_name;
+
+        if (types.includes("administrative_area_level_1"))
+          state = component.long_name;
+
+        if (types.includes("postal_code"))
+          pincode = component.long_name;
+      });
+
+      setAddress((prev) => ({
+        ...prev,
+        locality: locality || prev.locality,
+        district: district || prev.district,
+        state: state || prev.state,
+        pincode: pincode || prev.pincode,
+        lat,
+        lng,
+      }));
+    } catch (error) {
+      console.error("Geocoding failed", error);
+    }
+  };
+
   const handleCheckout = async () => {
     if (
       !address.houseNumber ||
@@ -105,7 +170,6 @@ function Cart() {
     try {
       setLoading(true);
 
-      /* ================= COD ================= */
       if (paymentMethod === "COD") {
         await authAxios.post(ORDER_API, {
           items: cart,
@@ -123,8 +187,6 @@ function Cart() {
         navigate("/profile");
         return;
       }
-
-      /* ================= RAZORPAY ================= */
 
       const { data } = await authAxios.post(
         `${ORDER_API}/razorpay`,
@@ -168,7 +230,6 @@ function Cart() {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-
     } catch (err) {
       console.error(err);
       alert(t("cart.paymentFailed"));
@@ -235,12 +296,29 @@ function Cart() {
 
             <h3>{t("cart.deliveryAddress")}</h3>
 
-            <input name="houseNumber" placeholder={t("cart.houseNumber")} onChange={handleAddressChange} />
-            <input name="locality" placeholder={t("cart.locality")} onChange={handleAddressChange} />
-            <input name="landmark" placeholder={t("cart.landmark")} onChange={handleAddressChange} />
-            <input name="district" placeholder={t("cart.district")} onChange={handleAddressChange} />
-            <input name="state" placeholder={t("cart.state")} onChange={handleAddressChange} />
-            <input name="pincode" placeholder={t("cart.pincode")} onChange={handleAddressChange} />
+            <input name="houseNumber" placeholder={t("cart.houseNumber")} value={address.houseNumber} onChange={handleAddressChange} />
+            <input name="locality" placeholder={t("cart.locality")} value={address.locality} onChange={handleAddressChange} />
+            <input name="landmark" placeholder={t("cart.landmark")} value={address.landmark} onChange={handleAddressChange} />
+            <input name="district" placeholder={t("cart.district")} value={address.district} onChange={handleAddressChange} />
+            <input name="state" placeholder={t("cart.state")} value={address.state} onChange={handleAddressChange} />
+            <input name="pincode" placeholder={t("cart.pincode")} value={address.pincode} onChange={handleAddressChange} />
+
+            <button onClick={() => setShowMap(!showMap)}>
+              Select Address From Map
+            </button>
+
+            {showMap && (
+              <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={defaultCenter}
+                  zoom={13}
+                  onClick={handleMapClick}
+                >
+                  {marker && <Marker position={marker} />}
+                </GoogleMap>
+              </LoadScript>
+            )}
 
             <h3>{t("cart.paymentMethod")}</h3>
 

@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
     "axios": "^1.13.5",
     "cloudinary": "^2.9.0",
     "i18next": "^25.8.13",
