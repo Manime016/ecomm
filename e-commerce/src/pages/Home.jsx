@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../styles/Dashboard.css";
+import banner from "../assets/banners/banner111.png";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const PRODUCT_API = `${BASE_URL}/api/products`;
@@ -188,7 +189,7 @@ function Dashboard() {
   return (
     <>
     <div className="hero-banner">
-  <img src="C:\Users\Mani\OneDrive\Desktop\ecomm\e-commerce\src\assets\banners\banner111.png" className="hero-image" />
+  <img src={banner} className="hero-image" />
   <div className="hero-text">SHOPP111</div>
 </div>
 
