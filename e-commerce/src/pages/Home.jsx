@@ -188,7 +188,7 @@ function Dashboard() {
   return (
     <>
     <div className="hero-banner">
-  <img src="../assets/banners/banner111.png" className="hero-image" />
+  <img src="C:\Users\Mani\OneDrive\Desktop\ecomm\e-commerce\src\assets\banners\banner111.png" className="hero-image" />
   <div className="hero-text">SHOPP111</div>
 </div>
 
