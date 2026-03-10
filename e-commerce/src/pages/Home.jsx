@@ -187,14 +187,10 @@ function Dashboard() {
 
   return (
     <>
-      <div className="hero-banner">
-        <div className="hero-slides">
-          {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((n, i) => (
-            <div key={i} className={`hero-slide slide${n}`} />
-          ))}
-        </div>
-        <div className="hero-text">SHOPP111</div>
-      </div>
+    <div className="hero-banner">
+  <img src="/images/banner.jpg" className="hero-image" />
+  <div className="hero-text">SHOPP111</div>
+</div>
 
       {categories.map((cat) => {
         const filtered = products.filter((p) => p.category === cat);
