@@ -188,7 +188,7 @@ function Dashboard() {
   return (
     <>
     <div className="hero-banner">
-  <img src="/images/banner.jpg" className="hero-image" />
+  <img src="../assets/banners/banner111.png" className="hero-image" />
   <div className="hero-text">SHOPP111</div>
 </div>
 
