@@ -1,8 +1,4 @@
-"""
-Product controller.
-Equivalent of controller/productController.js
-"""
-import base64
+"""Product controller."""
 from typing import Optional
 
 from bson import ObjectId
@@ -16,10 +12,16 @@ from utils.errors import AppError
 
 
 async def _upload_image(file: UploadFile) -> str:
-    contents = await file.read()
-    b64 = base64.b64encode(contents).decode("utf-8")
-    data_uri = f"data:{file.content_type};base64,{b64}"
-    result = cloudinary.uploader.upload(data_uri, folder="ecommimages")
+    """Upload an already validated image to Cloudinary.
+
+    The route validates size/type before this function is called. Passing the
+    file object directly avoids an unnecessary base64 copy in application
+    memory.
+    """
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise AppError(400, "Only image files are allowed")
+
+    result = cloudinary.uploader.upload(file.file, folder="ecommimages", resource_type="image")
     return result["secure_url"]
 
 
@@ -32,6 +34,19 @@ async def create_product(
     image: Optional[UploadFile],
 ) -> dict:
     db = get_db()
+
+    name = name.strip()
+    category = category.strip()
+    description = description.strip()
+
+    if not name:
+        raise AppError(400, "Product name is required")
+    if not category:
+        raise AppError(400, "Product category is required")
+    if price < 0:
+        raise AppError(400, "Price cannot be negative")
+    if stock < 0:
+        raise AppError(400, "Stock cannot be negative")
 
     image_url = None
     if image is not None:
@@ -85,19 +100,38 @@ async def update_product(
 
     if image is not None:
         update["image"] = await _upload_image(image)
-    else:
-        update["image"] = product.get("image")
 
     if name is not None:
+        name = name.strip()
+        if not name:
+            raise AppError(400, "Product name cannot be empty")
         update["name"] = name
     if category is not None:
+        category = category.strip()
+        if not category:
+            raise AppError(400, "Product category cannot be empty")
         update["category"] = category
     if description is not None:
-        update["description"] = description
+        update["description"] = description.strip()
     if price is not None and price != "":
-        update["price"] = float(price)
+        try:
+            parsed_price = float(price)
+        except ValueError:
+            raise AppError(400, "Invalid price")
+        if parsed_price < 0:
+            raise AppError(400, "Price cannot be negative")
+        update["price"] = parsed_price
     if stock is not None and stock != "":
-        update["stock"] = int(stock)
+        try:
+            parsed_stock = int(stock)
+        except ValueError:
+            raise AppError(400, "Invalid stock")
+        if parsed_stock < 0:
+            raise AppError(400, "Stock cannot be negative")
+        update["stock"] = parsed_stock
+
+    if not update:
+        raise AppError(400, "No product fields supplied for update")
 
     await db.products.update_one({"_id": oid}, {"$set": update})
     return await db.products.find_one({"_id": oid})
@@ -120,7 +154,13 @@ async def delete_product(product_id: str) -> dict:
 
 async def save_recent_search(current_user: dict, query: str) -> list:
     db = get_db()
+    query = (query or "").strip()
+    if not query:
+        raise AppError(400, "Search query is required")
+
     user = await db.users.find_one({"_id": current_user["_id"]})
+    if not user:
+        raise AppError(404, "User not found")
 
     recent = [item for item in user.get("recentSearches", []) if item != query]
     recent.insert(0, query)
