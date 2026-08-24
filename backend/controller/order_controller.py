@@ -1,6 +1,7 @@
 """
 Order controller.
-Equivalent of controller/orderController.js
+
+Handles order creation, payment verification and order lifecycle operations.
 """
 import hashlib
 import hmac
@@ -27,8 +28,7 @@ async def create_razorpay_order(amount: float) -> dict:
         "receipt": f"receipt_{int(time.time() * 1000)}",
     }
 
-    order = razorpay_client.order.create(data=options)
-    return order
+    return razorpay_client.order.create(data=options)
 
 
 async def verify_razorpay_payment(
@@ -41,7 +41,7 @@ async def verify_razorpay_payment(
         hashlib.sha256,
     ).hexdigest()
 
-    if expected_signature != razorpay_signature:
+    if not hmac.compare_digest(expected_signature, razorpay_signature):
         raise AppError(400, "Invalid payment signature")
 
     return {"success": True}
@@ -59,6 +59,16 @@ def _format_address(address: Any) -> str:
         ]
         return "\n".join(parts).strip()
     return address
+
+
+async def _reserve_stock(db, product_oid: ObjectId, quantity: int, product_name: str) -> None:
+    """Atomically reserve stock so concurrent orders cannot oversell it."""
+    result = await db.products.update_one(
+        {"_id": product_oid, "stock": {"$gte": quantity}},
+        {"$inc": {"stock": -quantity}},
+    )
+    if result.modified_count != 1:
+        raise AppError(400, f"{product_name} is out of stock")
 
 
 async def create_order(
@@ -81,59 +91,74 @@ async def create_order(
         raise AppError(400, "Cart is empty")
 
     normalized_items = []
+    reserved_stock = []
 
-    for item in items:
-        raw_product = item.get("product")
-        product_id = raw_product.get("_id") if isinstance(raw_product, dict) else raw_product
+    try:
+        for item in items:
+            raw_product = item.get("product")
+            product_id = raw_product.get("_id") if isinstance(raw_product, dict) else raw_product
 
-        try:
-            product_oid = ObjectId(product_id)
-        except InvalidId:
-            raise AppError(404, "Resource not found")
+            try:
+                product_oid = ObjectId(product_id)
+            except (InvalidId, TypeError):
+                raise AppError(404, "Resource not found")
 
-        product = await db.products.find_one({"_id": product_oid})
-        if not product:
-            raise AppError(404, "Product not found")
+            product = await db.products.find_one({"_id": product_oid})
+            if not product:
+                raise AppError(404, "Product not found")
 
-        if product["stock"] < item["quantity"]:
-            raise AppError(400, f"{product['name']} is out of stock")
+            quantity = item.get("quantity")
+            if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity <= 0:
+                raise AppError(400, "Quantity must be a positive integer")
 
-        await db.products.update_one({"_id": product_oid}, {"$inc": {"stock": -item["quantity"]}})
+            await _reserve_stock(db, product_oid, quantity, product["name"])
+            reserved_stock.append((product_oid, quantity))
+            normalized_items.append({"product": product_oid, "quantity": quantity})
 
-        normalized_items.append({"product": product_oid, "quantity": item["quantity"]})
+        import datetime
+        now = datetime.datetime.utcnow()
 
-    formatted_address = _format_address(address)
+        order_doc = {
+            "user": current_user["_id"],
+            "items": normalized_items,
+            "subtotal": subtotal,
+            "discount": discount or 0,
+            "deliveryCharge": delivery_charge or 0,
+            "totalAmount": total_amount,
+            "couponUsed": coupon_used,
+            "paymentMethod": payment_method,
+            "address": _format_address(address),
+            "orderStatus": "Processing",
+            "trackingId": new_tracking_id(),
+            "createdAt": now,
+            "updatedAt": now,
+        }
 
-    import datetime
-    now = datetime.datetime.utcnow()
+        result = await db.orders.insert_one(order_doc)
+        order_doc["_id"] = result.inserted_id
 
-    order_doc = {
-        "user": current_user["_id"],
-        "items": normalized_items,
-        "subtotal": subtotal,
-        "discount": discount or 0,
-        "deliveryCharge": delivery_charge or 0,
-        "totalAmount": total_amount,
-        "couponUsed": coupon_used,
-        "paymentMethod": payment_method,
-        "address": formatted_address,
-        "orderStatus": "Processing",
-        "trackingId": new_tracking_id(),
-        "createdAt": now,
-        "updatedAt": now,
-    }
+        await db.carts.update_one(
+            {"user": current_user["_id"]},
+            {"$set": {"items": []}},
+            upsert=False,
+        )
 
-    result = await db.orders.insert_one(order_doc)
-    order_doc["_id"] = result.inserted_id
+        return order_doc
 
-    await db.carts.update_one({"user": current_user["_id"]}, {"$set": {"items": []}}, upsert=False)
-
-    return order_doc
+    except Exception:
+        # If order creation fails after stock was reserved, restore every reservation.
+        for product_oid, quantity in reserved_stock:
+            await db.products.update_one(
+                {"_id": product_oid},
+                {"$inc": {"stock": quantity}},
+            )
+        raise
 
 
 async def _populate_order_items(order: dict) -> dict:
     if not order:
         return order
+
     db = get_db()
     for item in order.get("items", []):
         item["product"] = await db.products.find_one({"_id": item["product"]})
@@ -153,7 +178,7 @@ async def get_single_order(current_user: dict, order_id: str) -> dict:
     db = get_db()
     try:
         oid = ObjectId(order_id)
-    except InvalidId:
+    except (InvalidId, TypeError):
         raise AppError(404, "Resource not found")
 
     order = await db.orders.find_one({"_id": oid})
@@ -171,7 +196,7 @@ async def cancel_order(current_user: dict, order_id: str) -> dict:
     db = get_db()
     try:
         oid = ObjectId(order_id)
-    except InvalidId:
+    except (InvalidId, TypeError):
         raise AppError(404, "Resource not found")
 
     order = await db.orders.find_one({"_id": oid})
@@ -185,7 +210,10 @@ async def cancel_order(current_user: dict, order_id: str) -> dict:
     if order["orderStatus"] in ["Shipped", "Out for Delivery", "Delivered"]:
         raise AppError(400, "Order cannot be cancelled now")
 
-    await db.orders.update_one({"_id": oid}, {"$set": {"orderStatus": "Cancelled"}})
+    await db.orders.update_one(
+        {"_id": oid},
+        {"$set": {"orderStatus": "Cancelled"}},
+    )
     return {"message": "Order cancelled successfully"}
 
 
@@ -193,7 +221,7 @@ async def update_order_status(order_id: str, status: str) -> dict:
     db = get_db()
     try:
         oid = ObjectId(order_id)
-    except InvalidId:
+    except (InvalidId, TypeError):
         raise AppError(404, "Resource not found")
 
     order = await db.orders.find_one({"_id": oid})
@@ -201,5 +229,8 @@ async def update_order_status(order_id: str, status: str) -> dict:
     if not order:
         raise AppError(404, "Order not found")
 
-    await db.orders.update_one({"_id": oid}, {"$set": {"orderStatus": status}})
+    await db.orders.update_one(
+        {"_id": oid},
+        {"$set": {"orderStatus": status}},
+    )
     return {"message": "Order status updated"}
