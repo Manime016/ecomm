@@ -13,8 +13,8 @@ from config.razorpay_config import razorpay_client
 from models.order import new_tracking_id
 from utils.errors import AppError
 
-ALLOWED_ORDER_STATUSES = {"Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"}
-CANCELLABLE_STATUSES = {"Processing"}
+ALLOWED_ORDER_STATUSES = {"Processing", "Confirmed", "Shipped", "Out for Delivery", "Delivered", "Cancelled"}
+CANCELLABLE_STATUSES = {"Processing", "Confirmed"}
 
 
 def _money(value: Any, field: str) -> float:
@@ -58,7 +58,25 @@ async def verify_razorpay_payment(
     if not hmac.compare_digest(expected_signature, razorpay_signature):
         raise AppError(400, "Invalid payment signature")
 
-    return {"success": True}
+    try:
+        razorpay_order = razorpay_client.order.fetch(razorpay_order_id)
+        payment = razorpay_client.payment.fetch(razorpay_payment_id)
+    except Exception:
+        raise AppError(400, "Unable to verify payment with payment provider")
+
+    if str(payment.get("order_id")) != str(razorpay_order_id):
+        raise AppError(400, "Payment does not belong to the Razorpay order")
+
+    if payment.get("status") != "captured":
+        raise AppError(400, "Payment has not been captured")
+
+    return {
+        "success": True,
+        "razorpayOrderId": razorpay_order["id"],
+        "razorpayPaymentId": payment["id"],
+        "amount": int(payment["amount"]),
+        "currency": payment.get("currency", "INR"),
+    }
 
 
 def _format_address(address: Any) -> str:
@@ -96,6 +114,8 @@ async def create_order(
     coupon_used: str | None,
     payment_method: str | None,
     address: Any,
+    razorpay_order_id: str | None = None,
+    razorpay_payment_id: str | None = None,
 ) -> dict:
     db = get_db()
 
@@ -104,8 +124,13 @@ async def create_order(
     if not isinstance(items, list) or not items:
         raise AppError(400, "Cart is empty")
 
-    # Never trust prices/totals supplied by the client. Recalculate them from
-    # the current database prices and requested quantities.
+    payment_method = (payment_method or "COD").upper()
+    if payment_method not in {"COD", "ONLINE"}:
+        raise AppError(400, "Invalid payment method")
+
+    if payment_method == "ONLINE" and (not razorpay_order_id or not razorpay_payment_id):
+        raise AppError(400, "Verified payment identifiers are required")
+
     normalized_items = []
     reserved_stock = []
     calculated_subtotal = 0.0
@@ -147,13 +172,35 @@ async def create_order(
         if requested_discount > calculated_subtotal:
             raise AppError(400, "Discount cannot exceed subtotal")
 
-        calculated_total = round(
-            calculated_subtotal - requested_discount + requested_delivery, 2
-        )
+        calculated_total = round(calculated_subtotal - requested_discount + requested_delivery, 2)
         client_total = _money(total_amount, "total amount")
 
         if abs(client_total - calculated_total) > 0.01:
             raise AppError(400, "Order total does not match product prices")
+
+        payment_status = "Pending"
+        payment_amount = None
+
+        if payment_method == "ONLINE":
+            try:
+                razorpay_order = razorpay_client.order.fetch(razorpay_order_id)
+                payment = razorpay_client.payment.fetch(razorpay_payment_id)
+            except Exception:
+                raise AppError(400, "Unable to verify payment with payment provider")
+
+            if str(razorpay_order.get("id")) != str(razorpay_order_id):
+                raise AppError(400, "Invalid Razorpay order")
+            if str(payment.get("order_id")) != str(razorpay_order_id):
+                raise AppError(400, "Payment does not belong to the order")
+            if payment.get("status") != "captured":
+                raise AppError(400, "Payment has not been captured")
+            if int(razorpay_order.get("amount", 0)) != int(round(calculated_total * 100)):
+                raise AppError(400, "Payment amount does not match order total")
+            if int(payment.get("amount", 0)) != int(round(calculated_total * 100)):
+                raise AppError(400, "Captured payment amount does not match order total")
+
+            payment_status = "Paid"
+            payment_amount = int(payment["amount"])
 
         import datetime
         now = datetime.datetime.utcnow()
@@ -167,12 +214,22 @@ async def create_order(
             "totalAmount": calculated_total,
             "couponUsed": coupon_used,
             "paymentMethod": payment_method,
+            "paymentStatus": payment_status,
+            "razorpayOrderId": razorpay_order_id,
+            "razorpayPaymentId": razorpay_payment_id,
+            "paymentAmountPaise": payment_amount,
             "address": _format_address(address),
             "orderStatus": "Processing",
             "trackingId": new_tracking_id(),
             "createdAt": now,
             "updatedAt": now,
         }
+
+        # Prevent duplicate internal orders for the same Razorpay payment.
+        if razorpay_payment_id:
+            existing = await db.orders.find_one({"razorpayPaymentId": razorpay_payment_id})
+            if existing:
+                raise AppError(409, "Payment has already been used for an order")
 
         result = await db.orders.insert_one(order_doc)
         order_doc["_id"] = result.inserted_id
@@ -243,7 +300,6 @@ async def cancel_order(current_user: dict, order_id: str) -> dict:
     if order["orderStatus"] not in CANCELLABLE_STATUSES:
         raise AppError(400, "Order cannot be cancelled now")
 
-    # Restore inventory exactly once when the order transitions to Cancelled.
     result = await db.orders.update_one(
         {"_id": oid, "orderStatus": {"$in": list(CANCELLABLE_STATUSES)}},
         {"$set": {"orderStatus": "Cancelled", "updatedAt": __import__('datetime').datetime.utcnow()}},
@@ -274,7 +330,6 @@ async def update_order_status(order_id: str, status: str) -> dict:
     order = await db.orders.find_one({"_id": oid})
     if not order:
         raise AppError(404, "Order not found")
-
     if order["orderStatus"] == "Cancelled":
         raise AppError(400, "Cancelled order cannot change status")
     if order["orderStatus"] == "Delivered" and status != "Delivered":
