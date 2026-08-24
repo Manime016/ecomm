@@ -1,11 +1,6 @@
-"""
-User controller.
-Equivalent of controller/userController.js
-"""
-import random
+"""User profile controller."""
+import secrets
 import time
-
-from bson import ObjectId
 
 from config.db import get_db
 from utils.errors import AppError
@@ -15,6 +10,8 @@ from utils.security import hash_password, verify_password
 async def get_profile(current_user: dict) -> dict:
     db = get_db()
     user = await db.users.find_one({"_id": current_user["_id"]}, {"password": 0})
+    if not user:
+        raise AppError(404, "User not found")
     return user
 
 
@@ -26,9 +23,9 @@ async def send_otp(current_user: dict) -> dict:
         raise AppError(404, "User not found")
 
     if user.get("otpAttempts", 0) >= 3:
-        raise AppError(400, "Maximum OTP attempts reached")
+        raise AppError(429, "Maximum OTP attempts reached")
 
-    otp = str(random.randint(100000, 999999))
+    otp = f"{secrets.randbelow(1_000_000):06d}"
 
     await db.users.update_one(
         {"_id": user["_id"]},
@@ -41,9 +38,8 @@ async def send_otp(current_user: dict) -> dict:
         },
     )
 
-    # NOTE (same as the original Node code): the OTP is returned directly in
-    # the response for testing purposes. Remove this before production and
-    # send it via email/SMS instead.
+    # Development-only response. Production should deliver the OTP through
+    # a trusted email/SMS provider and never expose it in the API response.
     return {"message": "OTP generated", "otp": otp}
 
 
@@ -63,10 +59,14 @@ async def update_profile(
 
     update: dict = {}
 
-    if name:
+    if name is not None:
+        name = name.strip()
+        if not name:
+            raise AppError(400, "Name cannot be empty")
         update["name"] = name
 
-    if email and email != user["email"]:
+    if email and email.lower().strip() != user["email"]:
+        email = email.lower().strip()
         if not otp:
             raise AppError(400, "OTP required to change email")
 
@@ -78,20 +78,28 @@ async def update_profile(
         ):
             raise AppError(400, "Invalid or expired OTP")
 
+        existing = await db.users.find_one({"email": email, "_id": {"$ne": user["_id"]}})
+        if existing:
+            raise AppError(409, "Email already in use")
+
         update["email"] = email
         update["emailOtp"] = None
         update["emailOtpExpire"] = None
         update["otpAttempts"] = 0
 
-    if old_password and new_password:
+    if new_password is not None:
+        if not old_password:
+            raise AppError(400, "Current password required")
+        if len(new_password) < 8:
+            raise AppError(400, "New password must be at least 8 characters")
         if not verify_password(old_password, user["password"]):
-            raise AppError(400, "Old password incorrect")
+            raise AppError(400, "Current password incorrect")
         update["password"] = hash_password(new_password)
 
     if update:
         await db.users.update_one({"_id": user["_id"]}, {"$set": update})
 
-    updated = await db.users.find_one({"_id": user["_id"]})
+    updated = await db.users.find_one({"_id": user["_id"]}, {"password": 0})
 
     return {
         "message": "Profile updated successfully",
