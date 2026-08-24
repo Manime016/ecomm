@@ -1,9 +1,4 @@
-"""
-Auth middleware ("protect").
-Equivalent of middleware/authMiddleware.js — a FastAPI dependency that
-reads the Bearer token, verifies the JWT, loads the user (minus password)
-and returns it. Raise the same 401s the Node version throws.
-"""
+"""Authentication dependency for protected routes."""
 import jwt
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -15,21 +10,23 @@ from utils.security import decode_token
 
 
 async def protect(authorization: str | None = Header(default=None)) -> dict:
-    if not authorization or not authorization.startswith("Bearer"):
+    if not authorization:
         raise AppError(401, "Not authorized, no token")
 
-    token = authorization.split(" ")[1]
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token.strip():
+        raise AppError(401, "Not authorized, invalid authorization header")
 
     try:
-        decoded = decode_token(token)
+        decoded = decode_token(token.strip())
     except jwt.ExpiredSignatureError:
         raise AppError(401, "Token expired")
-    except jwt.InvalidTokenError:
+    except (jwt.InvalidTokenError, TypeError):
         raise AppError(401, "Not authorized, invalid token")
 
     try:
         user_id = ObjectId(decoded["id"])
-    except (InvalidId, KeyError):
+    except (InvalidId, KeyError, TypeError):
         raise AppError(401, "Not authorized, invalid token")
 
     db = get_db()
