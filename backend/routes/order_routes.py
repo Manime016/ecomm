@@ -1,7 +1,4 @@
-"""
-Order routes.
-Equivalent of routes/orderRoutes.js
-"""
+"""Order routes."""
 from fastapi import APIRouter, Depends
 
 from controller import order_controller
@@ -44,6 +41,8 @@ async def create_order(payload: dict, current_user: dict = Depends(protect)):
         payload.get("couponUsed"),
         payload.get("paymentMethod"),
         payload.get("address"),
+        payload.get("razorpayOrderId"),
+        payload.get("razorpayPaymentId"),
     )
     return serialize_doc(result)
 
