@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.post("/razorpay")
 async def create_razorpay_order(payload: dict, current_user: dict = Depends(protect)):
-    result = await order_controller.create_razorpay_order(payload.get("amount"))
+    result = await order_controller.create_razorpay_order(payload, current_user)
     return serialize_doc(result)
 
 
@@ -23,6 +23,7 @@ async def verify_razorpay_payment(payload: dict, current_user: dict = Depends(pr
         payload.get("razorpay_order_id"),
         payload.get("razorpay_payment_id"),
         payload.get("razorpay_signature"),
+        current_user,
     )
     return serialize_doc(result)
 
