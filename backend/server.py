@@ -1,10 +1,6 @@
-"""
-App entrypoint.
-Equivalent of server.js
-Run with:  uvicorn server:app --reload --port 5000
-"""
+"""FastAPI application entrypoint."""
+
 import os
-import re
 
 from dotenv import load_dotenv
 
@@ -35,7 +31,11 @@ from routes.order_routes import router as order_router
 from routes.coupon_routes import router as coupon_router
 from routes.user_routes import router as user_router
 
-app = FastAPI(title="react-backend-api", version="1.0.0")
+app = FastAPI(
+    title="E-Commerce Backend API",
+    version="1.0.0",
+    description="REST API for authentication, products, carts, orders, coupons and payments.",
+)
 
 
 @app.on_event("startup")
@@ -49,20 +49,8 @@ async def on_shutdown():
     await close_db()
 
 
-# ================= CORS =================
-# Mirrors the dynamic origin check in server.js: allow no-origin requests
-# (server-to-server / curl), any localhost origin, and any *.vercel.app origin.
-
-def _origin_allowed(origin: str) -> bool:
-    if not origin:
-        return True
-    if "localhost" in origin:
-        return True
-    if origin.endswith(".vercel.app"):
-        return True
-    return False
-
-
+# Development-friendly CORS. Restrict this further to the deployed frontend
+# origin before production deployment.
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"https?://(.*\.)?localhost(:\d+)?|https://.*\.vercel\.app",
@@ -71,14 +59,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ================= ERROR HANDLERS (mirrors notFound + errorHandler) =================
 app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(DuplicateKeyError, duplicate_key_handler)
 app.add_exception_handler(InvalidId, invalid_id_handler)
 app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_exception_handler(Exception, generic_error_handler)
 
-# ================= ROUTES =================
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(product_router, prefix="/api/products", tags=["products"])
 app.include_router(cart_router, prefix="/api/cart", tags=["cart"])
@@ -87,9 +73,14 @@ app.include_router(coupon_router, prefix="/api/coupons", tags=["coupons"])
 app.include_router(user_router, prefix="/api/users", tags=["users"])
 
 
-@app.get("/")
+@app.get("/", tags=["health"])
 async def root():
-    return "API Running..."
+    return {"status": "ok", "service": "e-commerce-backend"}
+
+
+@app.get("/health", tags=["health"])
+async def health():
+    return {"status": "healthy"}
 
 
 @app.exception_handler(StarletteHTTPException)
